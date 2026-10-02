@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "Tetriosu.sln",
+    "projects": [
+      "Tetriosu.Game\\Tetriosu.Game.csproj",
+      "Tetriosu.Resources\\Tetriosu.Resources.csproj",
+      "Tetriosu.iOS\\Tetriosu.iOS.csproj"
+    ]
+  }
+}
