@@ -1,12 +1,15 @@
-﻿using osu.Framework.Allocation;
+using System;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using Tetriosu.Game.Graphics;
 
 namespace Tetriosu.Game.Screens
 {
-    public partial class GameSelectionScreen : Screen
+    public partial class MainMenuScreen : Screen
     {
+        public Action? OnPlayGameButtonClicked;
         private const double fade_animation_duration = 100;
 
         [BackgroundDependencyLoader]
@@ -16,19 +19,26 @@ namespace Tetriosu.Game.Screens
             {
                 new Background
                 {
-                    Colour = Colour4.MediumPurple
+                    Colour = Colour4.DarkOrange,
                 },
-                new ActionButton(Colour4.DarkGreen, Colour4.Black, "Solo game", 32, (_, _) => loadSoloGameSelectionScreen())
+                new SpriteText
+                {
+                    Y = 20,
+                    Text = "Tetriosu",
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Font = FontUsage.Default.With(size: 48),
+                },
+                new SpinningBox
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre
+                },
+                new ActionButton(Colour4.MediumPurple, Colour4.Black, "Play game", 32, (_, _) => loadGameSelectionScreen())
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Y = -50
-                },
-                new ActionButton(Colour4.DarkOrange, Colour4.Black, "Back", 32, (_, _) => this.Exit())
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Y = 50
+                    Y = 250
                 }
             };
         }
@@ -57,6 +67,6 @@ namespace Tetriosu.Game.Screens
             base.OnResuming(e);
         }
 
-        private void loadSoloGameSelectionScreen() => this.Push(new SoloGameSelectionScreen());
+        private void loadGameSelectionScreen() => this.Push(new GameSelectionScreen());
     }
 }

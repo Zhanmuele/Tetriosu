@@ -5,7 +5,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 
-namespace Tetriosu.Game.BaseElements
+namespace Tetriosu.Game.Graphics
 {
     public partial class SpinningBox : CompositeDrawable
     {

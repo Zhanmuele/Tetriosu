@@ -1,17 +1,14 @@
-using osu.Framework.Allocation;
+﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
-using Tetriosu.Game.BaseElements;
+using Tetriosu.Game.Gameplay;
 using Tetriosu.Game.Graphics;
-using Tetriosu.Game.Graphics.Buttons;
 
 namespace Tetriosu.Game.Screens
 {
-    public partial class MainScreen : Screen
+    public partial class SoloGameSelectionScreen : Screen
     {
-        private const double fade_animation_duration = 150;
-
+        private const double fade_animation_duration = 100;
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -19,32 +16,32 @@ namespace Tetriosu.Game.Screens
             {
                 new Background
                 {
-                    Colour = Colour4.DarkOrange,
+                    Colour = Colour4.DarkGreen
                 },
-                new SpriteText
+                new ActionButton(Colour4.MediumSeaGreen, Colour4.Black, "40 Lines", 32, (_, _) => loadSoloGameScreen())
                 {
-                    Y = 20,
-                    Text = "Tetriosu",
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    Font = FontUsage.Default.With(size: 48),
-                },
-                new SpinningBox
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre
-                },
-                new PlayGameButton
-                {
-                    Y = 250,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
+                    Y = -50
+                },
+                new ActionButton(Colour4.MediumSeaGreen, Colour4.Black, "Blitz / Ultra", 32, (_, _) => loadSoloGameScreen())
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Y = 50
+                },
+                new ActionButton(Colour4.MediumPurple, Colour4.Black, "Back", 32, (_, _) => this.Exit())
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Y = 150
                 }
             };
         }
+
         public override void OnEntering(ScreenTransitionEvent e)
         {
-            this.FadeIn(fade_animation_duration, Easing.In);
+            this.FadeInFromZero(fade_animation_duration, Easing.In);
             base.OnEntering(e);
         }
 
@@ -65,5 +62,7 @@ namespace Tetriosu.Game.Screens
             this.FadeIn(fade_animation_duration, Easing.In);
             base.OnResuming(e);
         }
+
+        private void loadSoloGameScreen() => this.Push(new SoloGameScreen());
     }
 }

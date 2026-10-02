@@ -4,7 +4,7 @@ using osu.Framework.Screens;
 using Tetriosu.Game.Gameplay.Playfield;
 using Tetriosu.Game.Graphics;
 
-namespace Tetriosu.Game.Screens
+namespace Tetriosu.Game.Gameplay
 {
     public partial class SoloGameScreen : Screen
     {
