@@ -2,13 +2,13 @@
 using osu.Framework.Graphics;
 using osuTK;
 
-namespace Tetriosu.Game.Gameplay
+namespace Tetriosu.Game.Gameplay.Components
 {
     public static class GameSetup
     {
-        public const float ROWS = 50f;
-        public const float VISIBLE_ROWS = 20f;
-        public const float COLUMS = 10f;
+        public const int ROWS = 50;
+        public const int VISIBLE_ROWS = 20;
+        public const int COLUMS = 10;
         public const float BLOCK_SIZE = 25f;
         public static readonly Vector2 PLAYFIELD_SIZE = new Vector2(COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
         public static readonly Vector2 VISIBLE_PLAYFIELD_SIZE = new Vector2(COLUMS * BLOCK_SIZE, VISIBLE_ROWS * BLOCK_SIZE);

@@ -4,7 +4,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 
-namespace Tetriosu.Game.Gameplay
+namespace Tetriosu.Game.Gameplay.Components
 {
     public partial class BlockPiece : Container
     {
@@ -22,16 +22,13 @@ namespace Tetriosu.Game.Gameplay
             BlockPosition = startPos + new Vector2(4f, 28f);
             blockColour = color;
             blockColourWhenPlaced = colorWhenPlaced;
-        }
-
-        protected override void LoadComplete()
-        {
             X = blockSize.X * BlockPosition.X;
             Y = blockSize.Y * BlockPosition.Y;
             AutoSizeAxes = Axes.Both;
             Anchor = Anchor.TopLeft;
             Origin = Anchor.TopLeft;
-            Children = new Drawable[]
+
+            AddRange(new Drawable[]
             {
                 activeBlock = new Box
                 {
@@ -48,7 +45,7 @@ namespace Tetriosu.Game.Gameplay
                     Colour = blockColourWhenPlaced,
                     Alpha = 0,
                 }
-            };
+            });
         }
     }
 }

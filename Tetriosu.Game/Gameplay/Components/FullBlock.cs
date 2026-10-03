@@ -1,9 +1,8 @@
-﻿
-using osu.Framework.Allocation;
+﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using osuTK;
 
-namespace Tetriosu.Game.Gameplay
+namespace Tetriosu.Game.Gameplay.Components
 {
     public partial class FullBlock
     {
@@ -11,16 +10,12 @@ namespace Tetriosu.Game.Gameplay
         private bool isMoving = false;
         private int rotationState = 0;
         private int autoLockCounter = 15;
+        private BlockPiece[] blockPieces = new BlockPiece[4];
 
-        public FullBlock(Vector2 startPos, char blockType)
+        public FullBlock(char blockType)
         {
             this.blockType = blockType;
-        }
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-
+            
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Tetriosu.Game.Gameplay
     public partial class SoloGameScreen : Screen
     {
         private const double fade_animation_duration = 150;
+        private PlayfieldContainer playfieldContainer;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -17,15 +18,15 @@ namespace Tetriosu.Game.Gameplay
             {
                 new Background
                 {
-                    Colour = Colour4.DarkGreen
+                    Colour = Colour4.DarkGray
                 },
-                new PlayfieldContainer{}
+                playfieldContainer = new PlayfieldContainer{}
             };
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
         {
-            this.FadeIn(fade_animation_duration, Easing.In);
+            this.FadeInFromZero(fade_animation_duration, Easing.In);
             base.OnEntering(e);
         }
 

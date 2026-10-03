@@ -3,7 +3,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
-using Tetriosu.Game.Gameplay;
+using Tetriosu.Game.Gameplay.Components;
 using Tetriosu.Game.Graphics;
 
 namespace Tetriosu.Game.Gameplay.Playfield
@@ -19,6 +19,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
             Y = -GameSetup.BLOCK_SIZE * (GameSetup.ROWS - GameSetup.VISIBLE_ROWS) / 2;
+
             InternalChildren = new Drawable[]
             {
                 new Box()
@@ -35,9 +36,6 @@ namespace Tetriosu.Game.Gameplay.Playfield
             };
         }
 
-        public void AddBlockPiece(BlockPiece blockPiece)
-        {
-            playfieldBlockContainer.Add(blockPiece);
-        }
+        public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
     }
 }
