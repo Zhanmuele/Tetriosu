@@ -35,7 +35,5 @@ namespace Tetriosu.Game.Gameplay.Playfield
                 },
             };
         }
-
-        public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
     }
 }

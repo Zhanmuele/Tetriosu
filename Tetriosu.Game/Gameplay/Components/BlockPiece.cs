@@ -3,6 +3,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using Tetriosu.Game.Gameplay.Playfield;
 
 namespace Tetriosu.Game.Gameplay.Components
 {
@@ -12,18 +13,19 @@ namespace Tetriosu.Game.Gameplay.Components
         private bool isPlaced = false;
         private Colour4 blockColour;
         private Colour4 blockColourWhenPlaced;
-        private Container blockBox;
+         private Container blockBox;
         private Box activeBlock;
         private Box placedBlock;
         public Vector2 BlockPosition;
 
-        public BlockPiece(Vector2 startPos, Colour4 color, Colour4 colorWhenPlaced)
+        public BlockPiece(Vector2 startPos, Colour4 color, Colour4 colorWhenPlaced, PlayfieldContainer playfield)
         {
+            playfield.Add(this);
+
             BlockPosition = startPos + new Vector2(4f, 28f);
             blockColour = color;
             blockColourWhenPlaced = colorWhenPlaced;
-            X = blockSize.X * BlockPosition.X;
-            Y = blockSize.Y * BlockPosition.Y;
+            Position = BlockPosition * blockSize;
             AutoSizeAxes = Axes.Both;
             Anchor = Anchor.TopLeft;
             Origin = Anchor.TopLeft;
@@ -46,6 +48,11 @@ namespace Tetriosu.Game.Gameplay.Components
                     Alpha = 0,
                 }
             });
+        }
+
+        protected override void Update()
+        {
+            base.Update();
         }
     }
 }
