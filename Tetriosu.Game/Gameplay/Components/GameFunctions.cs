@@ -11,9 +11,9 @@ namespace Tetriosu.Game.Gameplay.Components
         public char HeldPieceType;
         public bool IsSoftDropping = false;
         public bool HasSwapped = false;
-        public BlockPiece?[,] PlayfieldData = new BlockPiece?[GameSetup.ROWS, GameSetup.COLUMS];
-        public List<char> NextPieceTypes = new List<char>();
-        public List<char> CurrentBag = new List<char>();
+        public BlockPiece?[,] PlayfieldData = new BlockPiece?[GameSetupValues.ROWS, GameSetupValues.DEFAULT_COLUMS];
+        public List<char> NextPieceTypes = new List<char>(5);
+        public List<char> CurrentBag = new List<char>(14);
         private Random rng = new Random();
 
         public void GenerateNewBag(NewBagGenerationRules rule)
@@ -22,10 +22,10 @@ namespace Tetriosu.Game.Gameplay.Components
             {
                 case NewBagGenerationRules.SevenBag:
                 {
-                    CurrentBag = new List<char>(GameSetup.PIECE_TYPES);
+                    CurrentBag = [.. GameSetupValues.PIECE_TYPES];
                     shuffle<List<char>>(CurrentBag);
                     break;
-                };
+                }
             }
         }
 
@@ -52,9 +52,10 @@ namespace Tetriosu.Game.Gameplay.Components
 
                     break;
 
-                };
+                }
                 default: throw new ArgumentOutOfRangeException(nameof(rule), rule, "Invalid bag generation rule");
             }
+
             return nextPieceType;
         }
 

@@ -4,14 +4,14 @@ using osuTK;
 
 namespace Tetriosu.Game.Gameplay.Components
 {
-    public static class GameSetup
+    public static class GameSetupValues
     {
         public const int ROWS = 50;
-        public const int VISIBLE_ROWS = 20;
-        public const int COLUMS = 10;
+        public const int DEFAULT_VISIBLE_ROWS = 20;
+        public const int DEFAULT_COLUMS = 10;
         public const float BLOCK_SIZE = 25f;
-        public static readonly Vector2 PLAYFIELD_SIZE = new Vector2(COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
-        public static readonly Vector2 VISIBLE_PLAYFIELD_SIZE = new Vector2(COLUMS * BLOCK_SIZE, VISIBLE_ROWS * BLOCK_SIZE);
+        public static readonly Vector2 PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+        public static readonly Vector2 VISIBLE_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_VISIBLE_ROWS * BLOCK_SIZE);
         public static readonly char[] PIECE_TYPES = new char[7] { 'Z', 'L', 'O', 'S', 'I', 'J', 'T' };
 
         public static readonly Dictionary<char, float[,]> FULL_BLOCK_SHAPE = new Dictionary<char, float[,]>()

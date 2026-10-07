@@ -18,14 +18,14 @@ namespace Tetriosu.Game.Gameplay.Components
         public FullPiece(char blockType, PlayfieldContainer playfield)
         {
             this.blockType = blockType;
-            blockPositions = GameSetup.FULL_BLOCK_SHAPE[blockType];
+            blockPositions = GameSetupValues.FULL_BLOCK_SHAPE[blockType];
 
             for (int i = 0; i < 4; i++)
             {
                 blockPieces[i] = new BlockPiece(
                     new Vector2(blockPositions[i, 0], blockPositions[i, 1]),
-                    GameSetup.FULL_BLOCK_COLORS[blockType],
-                    GameSetup.FULL_BLOCK_COLORS_WHEN_PLACED[blockType],
+                    GameSetupValues.FULL_BLOCK_COLORS[blockType],
+                    GameSetupValues.FULL_BLOCK_COLORS_WHEN_PLACED[blockType],
                     playfield);
             }
         }
