@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics;
-using osu.Framework.Utils;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
 
 namespace Tetriosu.Game.Gameplay.Components
 {
     public partial class GameFunctions : Component
     {
-        public char HeldPieceType;
+        public string HeldPieceType;
         public bool IsSoftDropping = false;
         public bool HasSwapped = false;
-        public BlockPiece?[,] PlayfieldData = new BlockPiece?[GameSetupValues.ROWS, GameSetupValues.DEFAULT_COLUMS];
-        public List<char> NextPieceTypes = new List<char>(5);
-        public List<char> CurrentBag = new List<char>(14);
+        public List<string> NextPieceTypes = new List<string>(5);
+        public List<string> CurrentBag = new List<string>(14);
         private Random rng = new Random();
 
         public void GenerateNewBag(NewBagGenerationRules rule)
@@ -22,16 +20,17 @@ namespace Tetriosu.Game.Gameplay.Components
             {
                 case NewBagGenerationRules.SevenBag:
                 {
-                    CurrentBag = [.. GameSetupValues.PIECE_TYPES];
-                    shuffle<List<char>>(CurrentBag);
+                    CurrentBag = [.. GameSetupValues.DEFAULT_PIECE_TYPES];
+                    shuffle<List<string>>(CurrentBag);
                     break;
                 }
             }
         }
 
-        public char GetNextPieceType(NewBagGenerationRules rule)
+        public string GetNextPieceType(NewBagGenerationRules rule)
         {
-            char nextPieceType;
+            string nextPieceType;
+
             switch (rule)
             {
                 case NewBagGenerationRules.SevenBag:
@@ -59,16 +58,14 @@ namespace Tetriosu.Game.Gameplay.Components
             return nextPieceType;
         }
 
-        private void shuffle<T>( IList<char> list)
+        private void shuffle<T>( List<string> list)
         {
             int n = list.Count;
             while (n > 1)
             {
                 n--;
                 int k = rng.Next(n + 1);
-                char value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                (list[n], list[k]) = (list[k], list[n]);
             }
         }
     }

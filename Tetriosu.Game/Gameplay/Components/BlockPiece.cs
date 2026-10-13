@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
-using Microsoft.Diagnostics.Runtime.DacInterface;
-using osu.Framework.Graphics;
+﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
@@ -55,10 +52,12 @@ namespace Tetriosu.Game.Gameplay.Components
         {
             if (isPlaced) { return; }
 
+            Position = BlockPosition * blockSize;
+
             base.Update();
         }
 
-        private bool horizontalCollisionCheck(float x, ref BlockPiece?[,] playfieldData)
+        public bool HorizontalCollisionCheck(float x, ref BlockPiece?[,] playfieldData)
         {
             if (!(0 <= x && x < GameSetupValues.DEFAULT_COLUMS))
             {
@@ -73,7 +72,7 @@ namespace Tetriosu.Game.Gameplay.Components
             return false;
         }
 
-        private bool verticalCollisionCheck(float y, ref BlockPiece?[,] playfieldData)
+        public bool VerticalCollisionCheck(float y, ref BlockPiece?[,] playfieldData)
         {
             if (!(0 <= y && y < GameSetupValues.ROWS))
             {
@@ -88,7 +87,7 @@ namespace Tetriosu.Game.Gameplay.Components
             return false;
         }
 
-        private Vector2 rotatePiece(Vector2 centerOfRotation, bool counterClockwise)
+        public Vector2 RotatePiece(Vector2 centerOfRotation, bool counterClockwise)
         {
             Vector2 offset = BlockPosition - centerOfRotation;
             Vector2 rotatedOffset = rotate90degrees(offset, counterClockwise);

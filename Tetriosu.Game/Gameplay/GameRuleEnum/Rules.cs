@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Tetriosu.Game.Gameplay.GameRuleEnum
+﻿namespace Tetriosu.Game.Gameplay.GameRuleEnum
 {
     public enum NewBagGenerationRules
     {
