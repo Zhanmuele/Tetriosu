@@ -7,8 +7,11 @@ namespace Tetriosu.Game.Gameplay.Components
 {
     public partial class FullPiece : Drawable
     {
-        private readonly int dasDelay;
-        private readonly int arrDelay;
+        public string HeldPieceType = "";
+        public bool IsSoftDropping = false;
+        public bool HasSwapped = false;
+        private readonly double dasDelay;
+        private readonly double arrDelay;
         private double? dasDelayTimer;
         private double? arrDelayTimer;
         private int rotationState = 0;
@@ -22,7 +25,7 @@ namespace Tetriosu.Game.Gameplay.Components
         private float[,] blockPositions = new float[4, 2];
         private BlockPiece?[,] playfieldData = new BlockPiece?[GameSetupValues.ROWS, GameSetupValues.DEFAULT_COLUMS];
 
-        public FullPiece(int dasDelayValue, int arrDelayValue)
+        public FullPiece(double dasDelayValue, double arrDelayValue)
         {
             dasDelay = dasDelayValue;
             arrDelay = arrDelayValue;
@@ -81,6 +84,7 @@ namespace Tetriosu.Game.Gameplay.Components
         {
             if (!leftMovementKeyHeld && !rightMovementKeyHeld)
             {
+                deactivateArrTimer();
                 isMoving = false;
                 return;
             }
@@ -94,10 +98,10 @@ namespace Tetriosu.Game.Gameplay.Components
                 activateDasTimer();
                 handleMovePiece(i);
             }
-
-            else if (dasDelayTimer.IsNull() && arrDelayTimer.IsNull())
+            else if (dasDelayTimer == null && (arrDelayTimer <= 0 || arrDelayTimer == null))
             {
-                activateArrTimer();
+                if (arrDelayTimer != null) { arrDelayTimer += arrDelay; }
+                else { activateArrTimer(); }
                 handleMovePiece(i);
             }
         }
@@ -155,11 +159,10 @@ namespace Tetriosu.Game.Gameplay.Components
 
         private void updateTimers()
         {
-            if (dasDelayTimer.IsNotNull()) { dasDelayTimer -= Time.Elapsed; }
-            if (arrDelayTimer.IsNotNull()) { arrDelayTimer -= Time.Elapsed; }
+            if (dasDelayTimer != null) { dasDelayTimer -= Time.Elapsed; }
+            if (arrDelayTimer != null) { arrDelayTimer -= Time.Elapsed; }
 
             if (dasDelayTimer <= 0) { deactivateDasTimer(); }
-            if (arrDelayTimer <= 0) { deactivateArrTimer(); }
         }
     }
 }

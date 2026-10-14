@@ -12,7 +12,6 @@ namespace Tetriosu.Game.Gameplay.Components
         public const float BLOCK_SIZE = 25f;
         public static readonly Vector2 PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
         public static readonly Vector2 VISIBLE_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_VISIBLE_ROWS * BLOCK_SIZE);
-        public static readonly string[] DEFAULT_PIECE_TYPES = new string[7] { "Z", "L", "O", "S", "I", "J", "T" };
 
         public static readonly Dictionary<string, float[,]> FULL_BLOCK_SHAPE = new Dictionary<string, float[,]>()
         {

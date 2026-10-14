@@ -2,14 +2,18 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
+using osuTK.Input;
 using Tetriosu.Game.Gameplay.Playfield;
 using Tetriosu.Game.Graphics;
 using Tetriosu.Game.Input.Keybinds;
+using Tetriosu.Game.Screens;
 
 namespace Tetriosu.Game.Gameplay
 {
-    public partial class SoloGameScreen : Screen
+    public partial class CustomSoloGameScreen : TetriosuScreen
     {
         private const double fade_animation_duration = 150;
         private Container box;

@@ -18,11 +18,6 @@ namespace Tetriosu.Game.Input.Keybinds
         HoldPiece,
     }
 
-    public enum GameHandleActions
-    {
-        ExitGame,
-    }
-
     public partial class FullPieceKeybindsContainer(
         SimultaneousBindingMode sbm = SimultaneousBindingMode.All,
         KeyCombinationMatchingMode kcm = KeyCombinationMatchingMode.Any) :
@@ -39,13 +34,5 @@ namespace Tetriosu.Game.Input.Keybinds
              new KeyBinding(InputKey.Z, FullPieceActions.Rotate180Degrees),
              new KeyBinding(InputKey.C, FullPieceActions.HoldPiece),
          };
-    }
-
-    public partial class GameHandleKeybinds : KeyBindingContainer<GameHandleActions>
-    {
-        public override IEnumerable<IKeyBinding> DefaultKeyBindings => new[]
-        {
-             new KeyBinding(InputKey.Escape, GameHandleActions.ExitGame),
-        };
     }
 }

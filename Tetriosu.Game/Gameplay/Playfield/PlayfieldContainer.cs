@@ -11,6 +11,7 @@ using osu.Framework.Input.Events;
 using osuTK.Graphics;
 using osuTK.Input;
 using Tetriosu.Game.Gameplay.Components;
+using Tetriosu.Game.Gameplay.Components.BagGenerator;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
 using Tetriosu.Game.Input.Keybinds;
 
@@ -18,9 +19,9 @@ namespace Tetriosu.Game.Gameplay.Playfield
 {
     public partial class PlayfieldContainer : Container, IKeyBindingHandler<FullPieceActions>
     {
-        public FullPiece CurrentPiece;
+        private FullPiece currentPiece;
         private Container playfieldBlockContainer;
-        private GameFunctions gameFunctions;
+        private BagGenerator bagGenerator;
         private List<KeyBindingPressEvent<FullPieceActions>> fullPiecePressEventsQueue;
         private List<KeyBindingReleaseEvent<FullPieceActions>> fullPieceReleaseEventsQueue;
 
@@ -37,8 +38,8 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
             InternalChildren = new Drawable[]
             {
-                CurrentPiece = new FullPiece(200, 30),
-                gameFunctions = new GameFunctions(),
+                currentPiece = new FullPiece(167, 16.7),
+                bagGenerator = new BagGenerator(NewBagGenerationRules.SevenBag),
                 new Box()
                 {
                     Size = GameSetupValues.VISIBLE_PLAYFIELD_SIZE,
@@ -55,7 +56,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
         protected override void LoadComplete()
         {
-            CurrentPiece.SetPiece(gameFunctions.GetNextPieceType(NewBagGenerationRules.SevenBag), this);
+            currentPiece.SetPiece(bagGenerator.GetNextPieceType(), this);
             base.LoadComplete();
         }
 
@@ -92,11 +93,11 @@ namespace Tetriosu.Game.Gameplay.Playfield
             switch (e.Action)
             {
                 case FullPieceActions.MoveLeft:
-                    CurrentPiece.HandleMoveLeftPress();
+                    currentPiece.HandleMoveLeftPress();
                     break;
 
                 case FullPieceActions.MoveRight:
-                    CurrentPiece.HandleMoveRightPress();
+                    currentPiece.HandleMoveRightPress();
                     break;
 
                 default:
@@ -110,11 +111,11 @@ namespace Tetriosu.Game.Gameplay.Playfield
             switch (e.Action)
             {
                 case FullPieceActions.MoveLeft:
-                    CurrentPiece.HandleMoveLeftRelease();
+                    currentPiece.HandleMoveLeftRelease();
                     break;
 
                 case FullPieceActions.MoveRight:
-                    CurrentPiece.HandleMoveRightRelease();
+                    currentPiece.HandleMoveRightRelease();
                     break;
 
                 default:

@@ -2,14 +2,15 @@ using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
+using osuTK.Input;
 using Tetriosu.Game.Graphics;
 
 namespace Tetriosu.Game.Screens
 {
-    public partial class MainMenuScreen : Screen
+    public partial class MainMenuScreen : TetriosuScreen
     {
-        public Action? OnPlayGameButtonClicked;
         private const double fade_animation_duration = 100;
 
         [BackgroundDependencyLoader]

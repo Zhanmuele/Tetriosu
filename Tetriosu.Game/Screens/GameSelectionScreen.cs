@@ -5,7 +5,7 @@ using Tetriosu.Game.Graphics;
 
 namespace Tetriosu.Game.Screens
 {
-    public partial class GameSelectionScreen : Screen
+    public partial class GameSelectionScreen : TetriosuScreen
     {
         private const double fade_animation_duration = 100;
 

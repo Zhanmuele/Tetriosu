@@ -6,9 +6,10 @@ using Tetriosu.Game.Graphics;
 
 namespace Tetriosu.Game.Screens
 {
-    public partial class SoloGameSelectionScreen : Screen
+    public partial class SoloGameSelectionScreen : TetriosuScreen
     {
         private const double fade_animation_duration = 100;
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -63,6 +64,6 @@ namespace Tetriosu.Game.Screens
             base.OnResuming(e);
         }
 
-        private void loadSoloGameScreen() => this.Push(new SoloGameScreen());
+        private void loadSoloGameScreen() => this.Push(new CustomSoloGameScreen());
     }
 }
