@@ -4,27 +4,27 @@ using osuTK;
 
 namespace Tetriosu.Game.Gameplay.Components
 {
-    public static class GameSetupValues
+    public class GameSetupValues
     {
         public const int ROWS = 50;
         public const int DEFAULT_VISIBLE_ROWS = 20;
         public const int DEFAULT_COLUMS = 10;
         public const float BLOCK_SIZE = 25f;
-        public static readonly Vector2 PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
-        public static readonly Vector2 VISIBLE_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_VISIBLE_ROWS * BLOCK_SIZE);
+        public static readonly Vector2 DEFAULT_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+        public static readonly Vector2 DEFAULT_VISIBLE_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_VISIBLE_ROWS * BLOCK_SIZE);
 
-        public static readonly Dictionary<string, float[,]> FULL_BLOCK_SHAPE = new Dictionary<string, float[,]>()
+        public static readonly Dictionary<string, Vector2[]> SRS_FULL_BLOCK_SHAPE = new Dictionary<string, Vector2[]>()
         {
-            { "Z", new float[4,2] {{0f, 0f}, {1f, 0f}, {0f, -1f}, {-1f, -1f}} },
-            { "L", new float[4,2] {{0f, 0f}, {-1f, 0f}, {1f, 0f}, {1f, -1f}} },
-            { "O", new float[4,2] {{0f, 0f}, {0f, -1f}, {1f, 0f}, {1f, -1f}} },
-            { "S", new float[4,2] {{0f, 0f}, {-1f, 0f}, {0f, -1f}, {1f, -1f}} },
-            { "I", new float[4,2] {{0f, 0f}, {-1f, 0f}, {1f, 0f}, {2f, 0f}} },
-            { "J", new float[4,2] {{0f, 0f}, {-1f, 0f}, {-1f, -1f}, {1f, 0f}} },
-            { "T", new float[4,2] {{0f, 0f}, {-1f, 0f}, {1f, 0f}, {0f, -1f}} },
+            { "Z", new Vector2[5] { Vector2.Zero, Vector2.Zero, new Vector2(+1,0), new Vector2(0,-1), new Vector2(-1,-1) }},
+            { "L", new Vector2[5] { Vector2.Zero, Vector2.Zero, new Vector2(-1,0), new Vector2(+1,0), new Vector2(+1,-1) }},
+            { "O", new Vector2[5] { new Vector2(0.5f,-0.5f), Vector2.Zero, new Vector2(+1,0), new Vector2(0,-1), new Vector2(+1,-1) }},
+            { "S", new Vector2[5] { Vector2.Zero, Vector2.Zero, new Vector2(-1,0), new Vector2(0,-1), new Vector2(+1,-1) }},
+            { "I", new Vector2[5] { new Vector2(0.5f,+0.5f), Vector2.Zero, new Vector2(-1,0), new Vector2(+1,0), new Vector2(+2,+0) }},
+            { "J", new Vector2[5] { Vector2.Zero, Vector2.Zero, new Vector2(-1,0), new Vector2(+1,0), new Vector2(-1,-1) }},
+            { "T", new Vector2[5] { Vector2.Zero, Vector2.Zero, new Vector2(-1,0), new Vector2(+1,0), new Vector2(+0,-1) }},
         };
 
-        public static readonly Dictionary<string, Colour4> FULL_BLOCK_COLORS = new Dictionary<string, Colour4>()
+        public static readonly Dictionary<string, Colour4> DEFAULT_FULL_BLOCK_COLORS = new Dictionary<string, Colour4>()
         {
             // HEX: #B32424   HSV 0°, 80%, 70%
             { "Z", new Colour4(179, 36, 36, 255) },
@@ -42,7 +42,7 @@ namespace Tetriosu.Game.Gameplay.Components
             { "T", new Colour4(153, 31, 153, 255) },
         };
 
-        public static readonly Dictionary<string, Colour4> FULL_BLOCK_COLORS_WHEN_PLACED = new Dictionary<string, Colour4>()
+        public static readonly Dictionary<string, Colour4> DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED = new Dictionary<string, Colour4>()
         {
             // HEX: #A62121   HSV 0°, 80%, 70%
             { "Z", new Colour4(166, 33, 33, 255) },

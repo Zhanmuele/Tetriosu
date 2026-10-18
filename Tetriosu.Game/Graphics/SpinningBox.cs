@@ -10,7 +10,7 @@ namespace Tetriosu.Game.Graphics
     public partial class SpinningBox : CompositeDrawable
     {
         private Container box;
-        
+
         public SpinningBox()
         {
             AutoSizeAxes = Axes.Both;

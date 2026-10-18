@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -9,40 +6,40 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osuTK.Graphics;
-using osuTK.Input;
 using Tetriosu.Game.Gameplay.Components;
 using Tetriosu.Game.Gameplay.Components.BagGenerator;
+using Tetriosu.Game.Gameplay.Components.GamePieces;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
 using Tetriosu.Game.Input.Keybinds;
 
 namespace Tetriosu.Game.Gameplay.Playfield
 {
-    public partial class PlayfieldContainer : Container, IKeyBindingHandler<FullPieceActions>
+    public partial class PlayfieldContainer : CompositeDrawable, IKeyBindingHandler<FullPieceActions>
     {
         private FullPiece currentPiece;
         private Container playfieldBlockContainer;
         private BagGenerator bagGenerator;
-        private List<KeyBindingPressEvent<FullPieceActions>> fullPiecePressEventsQueue;
-        private List<KeyBindingReleaseEvent<FullPieceActions>> fullPieceReleaseEventsQueue;
+        private List<KeyBindingPressEvent<FullPieceActions>> keyPressEventsQueue;
+        private List<KeyBindingReleaseEvent<FullPieceActions>> keyReleaseEventsQueue;
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            fullPiecePressEventsQueue = new List<KeyBindingPressEvent<FullPieceActions>>();
-            fullPieceReleaseEventsQueue = new List<KeyBindingReleaseEvent<FullPieceActions>>();
+            keyPressEventsQueue = new List<KeyBindingPressEvent<FullPieceActions>>();
+            keyReleaseEventsQueue = new List<KeyBindingReleaseEvent<FullPieceActions>>();
 
-            Size = GameSetupValues.PLAYFIELD_SIZE;
+            Size = GameSetupValues.DEFAULT_PLAYFIELD_SIZE;
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
             Y = -GameSetupValues.BLOCK_SIZE * (GameSetupValues.ROWS - GameSetupValues.DEFAULT_VISIBLE_ROWS) / 2;
 
             InternalChildren = new Drawable[]
             {
-                currentPiece = new FullPiece(167, 16.7),
+                currentPiece = new FullPiece(167, 16.7, RotationSystemAndKicktable.ClassicSRS),
                 bagGenerator = new BagGenerator(NewBagGenerationRules.SevenBag),
                 new Box()
                 {
-                    Size = GameSetupValues.VISIBLE_PLAYFIELD_SIZE,
+                    Size = GameSetupValues.DEFAULT_VISIBLE_PLAYFIELD_SIZE,
                     Colour = Color4.Black,
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
@@ -65,24 +62,25 @@ namespace Tetriosu.Game.Gameplay.Playfield
         public bool OnPressed(KeyBindingPressEvent<FullPieceActions> e)
         {
             if (e.Repeat) { return true; }
-            fullPiecePressEventsQueue.Add(e);
+            keyPressEventsQueue.Add(e);
+
             return true;
         }
 
-        public void OnReleased(KeyBindingReleaseEvent<FullPieceActions> e) => fullPieceReleaseEventsQueue.Add(e);
+        public void OnReleased(KeyBindingReleaseEvent<FullPieceActions> e) => keyReleaseEventsQueue.Add(e);
 
         protected override void Update()
         {
-            for (int pE = fullPiecePressEventsQueue.Count - 1 ; pE >= 0; pE--)
+            for (int pE = keyPressEventsQueue.Count - 1; pE >= 0; pE--)
             {
-                handleKeybindingPressEvent(fullPiecePressEventsQueue[pE]);
-                fullPiecePressEventsQueue.RemoveAt(pE);
+                handleKeybindingPressEvent(keyPressEventsQueue[pE]);
+                keyPressEventsQueue.RemoveAt(pE);
             }
 
-            for (int rE = fullPieceReleaseEventsQueue.Count - 1; rE >= 0; rE--)
+            for (int rE = keyReleaseEventsQueue.Count - 1; rE >= 0; rE--)
             {
-                handleKeyBindingReleaseEvent(fullPieceReleaseEventsQueue[rE]);
-                fullPieceReleaseEventsQueue.RemoveAt(rE);
+                handleKeyBindingReleaseEvent(keyReleaseEventsQueue[rE]);
+                keyReleaseEventsQueue.RemoveAt(rE);
             }
 
             base.Update();
@@ -93,17 +91,29 @@ namespace Tetriosu.Game.Gameplay.Playfield
             switch (e.Action)
             {
                 case FullPieceActions.MoveLeft:
-                    currentPiece.HandleMoveLeftPress();
+                    currentPiece.HandleMoveLeftKeypress();
                     break;
 
                 case FullPieceActions.MoveRight:
-                    currentPiece.HandleMoveRightPress();
+                    currentPiece.HandleMoveRightKeypress();
+                    break;
+
+                case FullPieceActions.RotateClockWise:
+                    currentPiece.HandleRotateCwKeypress();
+                    break;
+
+                case FullPieceActions.RotateCounterClockwise:
+                    currentPiece.HandleRotateCcwKeypress();
+                    break;
+
+                case FullPieceActions.FlipPiece:
+                    currentPiece.HandleFlipPieceKeypress();
                     break;
 
                 default:
                     break;
             }
-            
+
         }
 
         private void handleKeyBindingReleaseEvent(KeyBindingReleaseEvent<FullPieceActions> e)
@@ -111,11 +121,23 @@ namespace Tetriosu.Game.Gameplay.Playfield
             switch (e.Action)
             {
                 case FullPieceActions.MoveLeft:
-                    currentPiece.HandleMoveLeftRelease();
+                    currentPiece.HandleMoveLeftKeyRelease();
                     break;
 
                 case FullPieceActions.MoveRight:
-                    currentPiece.HandleMoveRightRelease();
+                    currentPiece.HandleMoveRightKeyRelease();
+                    break;
+
+                case FullPieceActions.RotateClockWise:
+                    currentPiece.HandleRotateCwKeyRelease();
+                    break;
+
+                case FullPieceActions.RotateCounterClockwise:
+                    currentPiece.HandleRotateCcwKeyRelease();
+                    break;
+
+                case FullPieceActions.FlipPiece:
+                    currentPiece.HandleFlipPieceKeyRelease();
                     break;
 
                 default:

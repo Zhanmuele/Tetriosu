@@ -6,5 +6,14 @@ namespace Tetriosu.Game.Screens
 {
     public partial class TetriosuScreen : Screen
     {
+        protected override bool OnKeyDown(KeyDownEvent e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                this.Exit();
+            }
+
+            return base.OnKeyDown(e);
+        }
     }
 }

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using osu.Framework.Graphics;
+﻿using System.Collections.Generic;
 using osu.Framework.Input.Bindings;
-using osuTK.Input;
 
 namespace Tetriosu.Game.Input.Keybinds
 {
@@ -14,7 +11,7 @@ namespace Tetriosu.Game.Input.Keybinds
         HardDrop,
         RotateClockWise,
         RotateCounterClockwise,
-        Rotate180Degrees,
+        FlipPiece,
         HoldPiece,
     }
 
@@ -31,7 +28,7 @@ namespace Tetriosu.Game.Input.Keybinds
              new KeyBinding(InputKey.Space, FullPieceActions.HardDrop),
              new KeyBinding(InputKey.Up, FullPieceActions.RotateClockWise),
              new KeyBinding(InputKey.X, FullPieceActions.RotateCounterClockwise),
-             new KeyBinding(InputKey.Z, FullPieceActions.Rotate180Degrees),
+             new KeyBinding(InputKey.Z, FullPieceActions.FlipPiece),
              new KeyBinding(InputKey.C, FullPieceActions.HoldPiece),
          };
     }

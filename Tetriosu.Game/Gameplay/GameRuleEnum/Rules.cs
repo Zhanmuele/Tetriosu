@@ -7,10 +7,11 @@
         ClassicRandom
     }
 
-    public enum RotationSystemRules
+    public enum RotationSystemAndKicktable
     {
-        SRS,
-        NRS,
+        ClassicSRS,
+        TetrIoSRS,
+        ArikaSRS,
         None
     }
 }
