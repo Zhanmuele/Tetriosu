@@ -6,6 +6,7 @@ namespace Tetriosu.Game.Screens
 {
     public partial class TetriosuScreen : Screen
     {
+        // Plz help me idk on how to exit game on fullscreen/borderless
         protected override bool OnKeyDown(KeyDownEvent e)
         {
             if (e.Key == Key.Escape)
