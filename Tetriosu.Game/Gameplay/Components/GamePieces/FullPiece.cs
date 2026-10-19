@@ -19,7 +19,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         private string pieceType = "";
         private List<BlockPiece> blockPieces = new List<BlockPiece>(8);
         private List<Vector2> blockPositions = new List<Vector2>(8);
-        private BlockPiece?[,] playfieldData = new BlockPiece?[GameSetupValues.ROWS, GameSetupValues.DEFAULT_COLUMS];
+        private readonly List<BlockPiece?[]> emptyField;
+        private List<BlockPiece?[]> playfieldData;
 
         #region timers (should really create a class for this :P)
 
@@ -53,17 +54,25 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #region kicktable variables
 
-        private Vector2[,] kicktableCW;
-        private Vector2[,] kicktableCCW;
-        private Vector2[,] iPieceKicktableCW;
-        private Vector2[,] iPieceKicktableCCW;
+        private Vector2[][] kicktableCW;
+        private Vector2[][] kicktableCCW;
+        private Vector2[][] iPieceKicktableCW;
+        private Vector2[][] iPieceKicktableCCW;
 
         #endregion
 
         public FullPiece(double dasDelayValue, double arrDelayValue, RotationSystemAndKicktable kicktableRule)
         {
+            emptyField = new List<BlockPiece?[]>(50);
             dasDelay = dasDelayValue;
             arrDelay = arrDelayValue;
+
+            for (int i = 0; i < GameSetupValues.DEFAULT_ROWS; i++)
+            {
+                emptyField.Add(new BlockPiece?[(int)GameSetupValues.DEFAULT_COLUMS]);
+            }
+
+            playfieldData = [.. emptyField];
 
             switch (kicktableRule)
             {
@@ -88,6 +97,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                     break;
 
                 case RotationSystemAndKicktable.ArikaSRS:
+                    iPieceKicktableCW = KicktableDictionary.CW_I_PIECE_KICKTABLE_ARIKA_SRS;
+                    iPieceKicktableCCW = KicktableDictionary.CCW_I_PIECE_KICKTABLE_ARIKA_SRS;
                     break;
 
                 case RotationSystemAndKicktable.TetrIoSRS:
@@ -323,9 +334,9 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                     {
                         if (pieceType != "I")
                         {
-                            appliedKick = kicktableCW[MathModulo(rotationState), failedRotationAttempts];
+                            appliedKick = kicktableCW[MathModulo(rotationState)][failedRotationAttempts];
                         }
-                        else { appliedKick = iPieceKicktableCW[MathModulo(rotationState), failedRotationAttempts]; }
+                        else { appliedKick = iPieceKicktableCW[MathModulo(rotationState)][failedRotationAttempts]; }
                     }
                     catch (IndexOutOfRangeException)
                     {
@@ -363,9 +374,9 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                     {
                         if (pieceType != "I")
                         {
-                            appliedKick = kicktableCCW[MathModulo(rotationState), failedRotationAttempts];
+                            appliedKick = kicktableCCW[MathModulo(rotationState)][failedRotationAttempts];
                         }
-                        else { appliedKick = iPieceKicktableCCW[MathModulo(rotationState), failedRotationAttempts]; }
+                        else { appliedKick = iPieceKicktableCCW[MathModulo(rotationState)][failedRotationAttempts]; }
                     }
                     catch (IndexOutOfRangeException)
                     {
@@ -400,12 +411,12 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             {
                 try
                 {
-                    if (pos.X < 0 || pos.X >= GameSetupValues.DEFAULT_COLUMS || pos.Y < 0 || pos.Y > GameSetupValues.ROWS)
+                    if (pos.X < 0 || pos.X >= GameSetupValues.DEFAULT_COLUMS || pos.Y < 0 || pos.Y > GameSetupValues.DEFAULT_ROWS)
                     {
                         return true;
                     }
 
-                    if (playfieldData[(int)pos.Y, (int)pos.X] != null)
+                    if (playfieldData[(int)pos.Y][(int)pos.X] != null)
                     {
                         return true;
                     }

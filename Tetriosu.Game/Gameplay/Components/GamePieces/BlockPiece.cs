@@ -1,4 +1,6 @@
-﻿using osu.Framework.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
@@ -21,7 +23,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             playfield.AddBlockPiece(this);
 
-            BlockPosition = startPos + new Vector2(4f, 28f);
+            BlockPosition = startPos + new Vector2((float)Math.Round(GameSetupValues.DEFAULT_COLUMS / 2, MidpointRounding.AwayFromZero) - 1, 28f);
             blockColour = color;
             blockColourWhenPlaced = colorWhenPlaced;
             Position = BlockPosition * blockSize;
@@ -60,12 +62,14 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             if (isPlaced) { return; }
 
-            Position = BlockPosition * blockSize;
+            UpdatePosition();
 
             base.Update();
         }
 
-        public bool HorizontalCollisionCheck(float x, ref BlockPiece?[,] playfieldData)
+        public void UpdatePosition() => Position = BlockPosition * blockSize;
+
+        public bool HorizontalCollisionCheck(float x, ref List<BlockPiece?[]> playfieldData)
         {
             if (IsHidden) { return false; }
 
@@ -74,7 +78,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 return true;
             }
 
-            if (playfieldData[(int)BlockPosition.Y, (int)x] != null)
+            if (playfieldData[(int)BlockPosition.Y][(int)x] != null)
             {
                 return true;
             }
@@ -82,16 +86,16 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             return false;
         }
 
-        public bool VerticalCollisionCheck(float y, ref BlockPiece?[,] playfieldData)
+        public bool VerticalCollisionCheck(float y, ref List<BlockPiece?[]> playfieldData)
         {
             if (IsHidden) { return false; }
 
-            if (!(0 <= y && y < GameSetupValues.ROWS))
+            if (!(0 <= y && y < GameSetupValues.DEFAULT_ROWS))
             {
                 return true;
             }
 
-            if (playfieldData[(int)y, (int)BlockPosition.X] != null)
+            if (playfieldData[(int)y][(int)BlockPosition.X] != null)
             {
                 return true;
             }

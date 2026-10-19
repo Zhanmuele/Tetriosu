@@ -31,7 +31,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
             Size = GameSetupValues.DEFAULT_PLAYFIELD_SIZE;
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
-            Y = -GameSetupValues.BLOCK_SIZE * (GameSetupValues.ROWS - GameSetupValues.DEFAULT_VISIBLE_ROWS) / 2;
+            Y = -GameSetupValues.BLOCK_SIZE * (GameSetupValues.DEFAULT_ROWS - GameSetupValues.DEFAULT_VISIBLE_ROWS) / 2;
 
             InternalChildren = new Drawable[]
             {

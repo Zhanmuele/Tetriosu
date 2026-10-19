@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osuTK;
+using Tetriosu.Game.Gameplay.Components.GamePieces;
 
 namespace Tetriosu.Game.Gameplay.Components
 {
     public class GameSetupValues
     {
-        public const int ROWS = 50;
-        public const int DEFAULT_VISIBLE_ROWS = 20;
-        public const int DEFAULT_COLUMS = 10;
+        public const float DEFAULT_ROWS = 50f;
+        public const float DEFAULT_VISIBLE_ROWS = 20f;
+        public const float DEFAULT_COLUMS = 11f;
         public const float BLOCK_SIZE = 25f;
-        public static readonly Vector2 DEFAULT_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+        public static readonly Vector2 DEFAULT_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_ROWS * BLOCK_SIZE);
         public static readonly Vector2 DEFAULT_VISIBLE_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_VISIBLE_ROWS * BLOCK_SIZE);
 
         public static readonly Dictionary<string, Vector2[]> SRS_FULL_BLOCK_SHAPE = new Dictionary<string, Vector2[]>()
