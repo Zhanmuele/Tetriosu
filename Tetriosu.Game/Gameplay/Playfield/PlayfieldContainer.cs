@@ -35,7 +35,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
             InternalChildren = new Drawable[]
             {
-                currentPiece = new FullPiece(167, 16.7, RotationSystemAndKicktable.ClassicSRS),
+                currentPiece = new FullPiece(120, 16.7, 0.0167, 12, RotationSystemAndKicktable.ClassicSRS),
                 bagGenerator = new BagGenerator(NewBagGenerationRules.SevenBag),
                 new Box()
                 {
@@ -98,6 +98,10 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     currentPiece.HandleMoveRightKeypress();
                     break;
 
+                case FullPieceActions.SoftDrop:
+                    currentPiece.HandleSoftDropKeypress();
+                    break;
+
                 case FullPieceActions.RotateClockWise:
                     currentPiece.HandleRotateCwKeypress();
                     break;
@@ -126,6 +130,10 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
                 case FullPieceActions.MoveRight:
                     currentPiece.HandleMoveRightKeyRelease();
+                    break;
+
+                case FullPieceActions.SoftDrop:
+                    currentPiece.HandleSoftDropKeyRelease();
                     break;
 
                 case FullPieceActions.RotateClockWise:

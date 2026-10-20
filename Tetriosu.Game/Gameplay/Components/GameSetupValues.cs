@@ -9,7 +9,7 @@ namespace Tetriosu.Game.Gameplay.Components
     {
         public const float DEFAULT_ROWS = 50f;
         public const float DEFAULT_VISIBLE_ROWS = 20f;
-        public const float DEFAULT_COLUMS = 11f;
+        public const float DEFAULT_COLUMS = 10f;
         public const float BLOCK_SIZE = 25f;
         public static readonly Vector2 DEFAULT_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_ROWS * BLOCK_SIZE);
         public static readonly Vector2 DEFAULT_VISIBLE_PLAYFIELD_SIZE = new Vector2(DEFAULT_COLUMS * BLOCK_SIZE, DEFAULT_VISIBLE_ROWS * BLOCK_SIZE);

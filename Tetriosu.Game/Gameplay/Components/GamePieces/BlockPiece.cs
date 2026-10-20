@@ -23,7 +23,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             playfield.AddBlockPiece(this);
 
-            BlockPosition = startPos + new Vector2((float)Math.Round(GameSetupValues.DEFAULT_COLUMS / 2, MidpointRounding.AwayFromZero) - 1, 28f);
+            BlockPosition = startPos + new Vector2((float)Math.Round(GameSetupValues.DEFAULT_COLUMS / 2, MidpointRounding.AwayFromZero) - 1,
+                                                   GameSetupValues.DEFAULT_ROWS - 22f);
             blockColour = color;
             blockColourWhenPlaced = colorWhenPlaced;
             Position = BlockPosition * blockSize;

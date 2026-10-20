@@ -26,7 +26,7 @@ namespace Tetriosu.Game.Gameplay
                 Origin = Anchor.Centre,
                 Children = new Drawable[]
                 {
-                    new Background
+                    new SolidColorBackground
                     {
                         Colour = Colour4.DarkGray
                     },

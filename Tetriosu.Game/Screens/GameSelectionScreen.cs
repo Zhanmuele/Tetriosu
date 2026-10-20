@@ -14,7 +14,7 @@ namespace Tetriosu.Game.Screens
         {
             InternalChildren = new Drawable[]
             {
-                new Background
+                new SolidColorBackground
                 {
                     Colour = Colour4.MediumPurple
                 },

@@ -3,9 +3,9 @@ using osu.Framework.Graphics.Shapes;
 
 namespace Tetriosu.Game.Graphics
 {
-    public partial class Background : Box
+    public partial class SolidColorBackground : Box
     {
-        public Background()
+        public SolidColorBackground()
         {
             RelativeSizeAxes = Axes.Both;
             Origin = Anchor.Centre;
