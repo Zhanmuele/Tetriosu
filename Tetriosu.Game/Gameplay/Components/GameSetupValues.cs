@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osuTK;
-using Tetriosu.Game.Gameplay.Components.GamePieces;
 
 namespace Tetriosu.Game.Gameplay.Components
 {
