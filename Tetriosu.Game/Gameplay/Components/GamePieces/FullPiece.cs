@@ -16,7 +16,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         private int autoLockCountdown = 15;
         private string pieceType = "";
         private List<BlockPiece> blockPieces = new List<BlockPiece>(8);
-        private List<Vector2> blockPositions = new List<Vector2>(8);
+        private List<Vector2> blockStartingPositions = new List<Vector2>(8);
         private readonly List<BlockPiece?[]> emptyField;
         private List<BlockPiece?[]> playfieldData;
 
@@ -24,15 +24,17 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         private readonly double dasDelay;
         private readonly double arrDelay;
+        private readonly double lockDelay = 500;
         private double? dasDelayTimer;
         private double? arrDelayTimer;
+        private double? lockDelayTimer;
         private readonly double gConstant = 16.7;
         private readonly double startingGravityG;
         private double gravityG;
         private readonly double softDropMultiplier;
         private double gravityTimeMs;
         private double softDropGravityTimeMs;
-        private double gravityTimer;
+        private double? gravityTimer;
 
         #endregion
 
@@ -44,6 +46,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         private bool rightMovementKeyIsHeldLast = false;
         private bool isSoftDropKeyHeld = false;
         private bool isSoftDropping = false;
+        private bool isHardDropKeyHeld = false;
+        private bool hasHardDropped = false;
 
         #endregion
 
@@ -68,13 +72,18 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #endregion
 
+        #region events
+
+        public event EventHandler<BlockPiece?> PiecePlaced;
+
+        #endregion
+
         public FullPiece(double dasDelayValue, double arrDelayValue, double startingGravityValue, double softDropMultiplierValue, RotationSystemAndKicktable kicktableRule)
         {
             emptyField = new List<BlockPiece?[]>(50);
             dasDelay = dasDelayValue;
             arrDelay = arrDelayValue;
-            startingGravityG = startingGravityValue;
-            gravityG = startingGravityValue;
+            gravityG = startingGravityG = startingGravityValue;
             softDropMultiplier = softDropMultiplierValue;
 
             gravityTimeMs = calculateGravityTime();
@@ -90,7 +99,6 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             switch (kicktableRule)
             {
                 case RotationSystemAndKicktable.ClassicSRS:
-                case RotationSystemAndKicktable.ArikaSRS:
                 case RotationSystemAndKicktable.TetrIoSRS:
                     kicktableCW = KicktableDictionary.CW_KICKTABLE_SRS;
                     kicktableCCW = KicktableDictionary.CCW_KICKTABLE_SRS;
@@ -109,12 +117,9 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                     iPieceKicktableCCW = KicktableDictionary.CCW_I_PIECE_KICKTABLE_CLASSIC_SRS;
                     break;
 
-                case RotationSystemAndKicktable.ArikaSRS:
-                    iPieceKicktableCW = KicktableDictionary.CW_I_PIECE_KICKTABLE_ARIKA_SRS;
-                    iPieceKicktableCCW = KicktableDictionary.CCW_I_PIECE_KICKTABLE_ARIKA_SRS;
-                    break;
-
                 case RotationSystemAndKicktable.TetrIoSRS:
+                    iPieceKicktableCW = KicktableDictionary.CW_I_PIECE_KICKTABLE_TETRIO_SRS;
+                    iPieceKicktableCCW = KicktableDictionary.CCW_I_PIECE_KICKTABLE_TETRIO_SRS;
                     break;
 
                 case RotationSystemAndKicktable.None:
@@ -129,21 +134,20 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         public void SetPiece(string blocktype, PlayfieldContainer playfield)
         {
+            if (!isSoftDropping) { activateGravityTimer(); }
+            else { activateSoftDropGravityTimer(); }
+
             pieceType = blocktype;
             isMoving = false;
             rotationState = 0;
             autoLockCountdown = 15;
-            gravityTimer = gravityTimeMs;
 
             blockPieces.Clear();
-            blockPositions.Clear();
-            blockPositions.AddRange(GameSetupValues.SRS_FULL_BLOCK_SHAPE[pieceType]);
-
-            // deactivateDasTimer();
-            // deactivateArrTimer();
+            blockStartingPositions.Clear();
+            blockStartingPositions.AddRange(GameSetupValues.SRS_FULL_BLOCK_SHAPE[pieceType]);
 
             int i = 0;
-            foreach (Vector2 blockPos in blockPositions)
+            foreach (Vector2 blockPos in blockStartingPositions)
             {
                 blockPieces.Add(new BlockPiece(blockPos,
                     GameSetupValues.DEFAULT_FULL_BLOCK_COLORS[pieceType],
@@ -156,17 +160,26 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         protected override void Update()
         {
-            updateTimers();
+            handleHardDrop();
+            handlePieceRotation();
             handleVerticalMovement();
             handleHorizontalMovement();
-            handlePieceRotation();
+            updateTimers();
 
             base.Update();
         }
 
+        #region gravity calculation
+
+        private double calculateGravityTime() => Math.Floor(gConstant / gravityG);
+
+        private double calculateSoftDropGravityTime() => Math.Floor(gravityTimeMs / softDropMultiplier);
+
+        #endregion
+
         #region movement key events
 
-        public void HandleMoveLeftKeypress()
+        public void HandleMoveLeftKeyPress()
         {
             leftMovementKeyHeld = true;
             rightMovementKeyIsHeldLast = false;
@@ -174,7 +187,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         public void HandleMoveLeftKeyRelease() => leftMovementKeyHeld = false;
 
-        public void HandleMoveRightKeypress()
+        public void HandleMoveRightKeyPress()
         {
             rightMovementKeyHeld = true;
             rightMovementKeyIsHeldLast = true;
@@ -182,9 +195,21 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         public void HandleMoveRightKeyRelease() => rightMovementKeyHeld = false;
 
-        public void HandleSoftDropKeypress() => isSoftDropKeyHeld = true;
+        public void HandleSoftDropKeyPress() => isSoftDropKeyHeld = true;
 
         public void HandleSoftDropKeyRelease() => isSoftDropKeyHeld = false;
+
+        #endregion
+
+        #region hard drop, hold piece key events
+
+        public void HandleHardDropKeyPress() => isHardDropKeyHeld = true;
+
+        public void HandleHardDropKeyRelease()
+        {
+            isHardDropKeyHeld = false;
+            hasHardDropped = false;
+        }
 
         #endregion
 
@@ -238,7 +263,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
             else if ((dasDelayTimer <= 0 || dasDelayTimer == null) && (arrDelayTimer <= 0 || arrDelayTimer == null))
             {
-                if (dasDelayTimer != null)
+                if (dasDelayTimer is not null)
                 {
                     activateArrTimer();
                     arrDelayTimer -= dasDelayTimer;
@@ -267,6 +292,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             if (!horizontalCollisionCheck(x))
             {
                 movePieceHorizontally(x);
+                verticalCollisiionCheck(1);
+
                 return true;
             }
 
@@ -302,7 +329,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         private void handleVerticalMovement()
         {
-            if (gravityTimeMs <= 2 || (isSoftDropping && softDropGravityTimeMs <= 2))
+            if (gravityTimeMs <= 2 || (isSoftDropKeyHeld && softDropGravityTimeMs <= 2))
             {
                 pushPieceToBottomOfPlayfield();
                 return;
@@ -311,7 +338,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             if (isSoftDropKeyHeld && !isSoftDropping)
             {
                 attemptVerticalMovement(1);
-                gravityTimer = softDropGravityTimeMs;
+                activateSoftDropGravityTimer();
                 isSoftDropping = true;
             }
             else if (!isSoftDropKeyHeld && isSoftDropping)
@@ -342,6 +369,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             if (!verticalCollisiionCheck(y))
             {
                 movePieceVertically(y);
+                verticalCollisiionCheck(y);
+
                 return true;
             }
 
@@ -354,8 +383,18 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             {
                 if (p.VerticalCollisionCheck(p.BlockPosition.Y + y, ref playfieldData))
                 {
+                    if (lockDelayTimer == null) { activateLoclDelayTimer(); }
+                    deactivateGravityTimer();
+
                     return true;
                 }
+            }
+
+            deactivateLockDelayTimer();
+            if (gravityTimer == null)
+            {
+                if (isSoftDropping) { activateSoftDropGravityTimer(); }
+                else { activateGravityTimer(); }
             }
 
             return false;
@@ -371,29 +410,40 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #endregion
 
-        #region gravity calculation
+        #region hard drop, hold piece and piece locking
 
-        private double calculateGravityTime() => Math.Floor(gConstant / gravityG);
-
-        private double calculateSoftDropGravityTime() => Math.Floor(gravityTimeMs / softDropMultiplier);
-
-        #endregion
-
-        #region timer handling (should really create a class for this :P)
-
-        private void activateDasTimer() => dasDelayTimer = dasDelay;
-
-        private void activateArrTimer() => arrDelayTimer = arrDelay;
-
-        private void deactivateDasTimer() => dasDelayTimer = null;
-
-        private void deactivateArrTimer() => arrDelayTimer = null;
-
-        private void updateTimers()
+        protected void OnPiecePlaced(BlockPiece? p)
         {
-            gravityTimer -= Time.Elapsed;
-            if (dasDelayTimer != null) { dasDelayTimer -= Time.Elapsed; }
-            if (arrDelayTimer != null) { arrDelayTimer -= Time.Elapsed; }
+            PiecePlaced?.Invoke(this, p);
+        }
+
+        private void handleHardDrop()
+        {
+            if (hasHardDropped || !isHardDropKeyHeld) { return; }
+
+            hasHardDropped = true;
+            pushPieceToBottomOfPlayfield();
+            placePiece();
+        }
+
+        private void placePiece()
+        {
+            BlockPiece? pToRemove = null;
+
+            foreach (BlockPiece p in blockPieces)
+            {
+                if (p.IsHidden)
+                {
+                    pToRemove = p;
+                    continue;
+                }
+
+                playfieldData[(int)p.BlockPosition.Y][(int)p.BlockPosition.X] = p;
+                p.UpdatePosition();
+                p.PlacePiece();
+            }
+
+            OnPiecePlaced(pToRemove);
         }
 
         #endregion
@@ -453,6 +503,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
 
             updateRotatedPiecePositions(ref blockPieces, rotatedPositions);
+            verticalCollisiionCheck(1);
         }
 
         private void attemptCounterClockwiseRotation()
@@ -493,6 +544,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
 
             updateRotatedPiecePositions(ref blockPieces, rotatedPositions);
+            verticalCollisiionCheck(1);
         }
 
         private List<Vector2> rotatePiece(bool CCW, bool flipPiece = false)
@@ -502,7 +554,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             foreach (BlockPiece p in blockPieces)
             {
-                Vector2 rotPos = p.RotatePiece(centerOfRotation, CCW, flipPiece);
+                Vector2 rotPos = p.RotatePosition(centerOfRotation, CCW, flipPiece);
                 rotatedPositions.Add(rotPos);
             }
 
@@ -520,7 +572,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                         return true;
                     }
 
-                    if (playfieldData[(int)pos.Y][(int)pos.X] != null)
+                    if (playfieldData[(int)pos.Y][(int)pos.X] is not null)
                     {
                         return true;
                     }
@@ -556,5 +608,34 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #endregion
 
+        #region timer handling (should really create a class for this :P)
+
+        private void activateDasTimer() => dasDelayTimer = dasDelay;
+
+        private void activateArrTimer() => arrDelayTimer = arrDelay;
+
+        private void activateLoclDelayTimer() => lockDelayTimer = lockDelay;
+
+        private void activateGravityTimer() => gravityTimer = gravityTimeMs;
+
+        private void activateSoftDropGravityTimer() => gravityTimer = softDropGravityTimeMs;
+
+        private void deactivateDasTimer() => dasDelayTimer = null;
+
+        private void deactivateArrTimer() => arrDelayTimer = null;
+
+        private void deactivateLockDelayTimer() => lockDelayTimer = null;
+
+        private void deactivateGravityTimer() => gravityTimer = null;
+
+        private void updateTimers()
+        {
+            gravityTimer -= Time.Elapsed;
+            if (dasDelayTimer is not null) { dasDelayTimer -= Time.Elapsed; }
+            if (arrDelayTimer is not null) { arrDelayTimer -= Time.Elapsed; }
+            if (lockDelayTimer is not null) { lockDelayTimer -= Time.Elapsed; }
+        }
+
+        #endregion
     }
 }

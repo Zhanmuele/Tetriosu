@@ -11,7 +11,6 @@
     {
         ClassicSRS,
         TetrIoSRS,
-        ArikaSRS,
         None
     }
 }

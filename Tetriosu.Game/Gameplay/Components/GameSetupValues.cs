@@ -26,38 +26,38 @@ namespace Tetriosu.Game.Gameplay.Components
 
         public static readonly Dictionary<string, Colour4> DEFAULT_FULL_BLOCK_COLORS = new Dictionary<string, Colour4>()
         {
-            // HEX: #B32424   HSV 0°, 80%, 70%
-            { "Z", new Colour4(179, 36, 36, 255) },
-            // HEX: #CC7B29   HSV 30°, 80%, 80%
-            { "L", new Colour4(204, 123, 41, 255) },
-            // HEX: #CCCC29   HSV 60°, 80%, 80%
-            { "O", new Colour4(204, 204, 41, 255) },
-            // HEX: #3DBD1F   HSV 105°, 80%, 60%
-            { "S", new Colour4(61, 153, 31, 255) },
-            // HEX: #29CCCC   HSV 180°, 80%, 80%
-            { "I", new Colour4(41, 204, 204, 255) },
-            // HEX: #1F3DBD   HSV 225°, 80%, 60%
-            { "J", new Colour4(31, 61, 153, 255) },
-            // HEX: #BD1FBD   HSV 300°, 80%, 60%
-            { "T", new Colour4(153, 31, 153, 255) },
+            // HEX: #b30000
+            { "Z", new Colour4(179, 0, 0, 255) },
+            // HEX: #cc6600
+            { "L", new Colour4(204, 102, 0, 255) },
+            // HEX: #cccc00
+            { "O", new Colour4(204, 204, 0, 255) },
+            // HEX: #269900
+            { "S", new Colour4(38, 153, 0, 255) },
+            // HEX: #00cccc
+            { "I", new Colour4(0, 204, 204, 255) },
+            // HEX: #004d99
+            { "J", new Colour4(0, 77, 153, 255) },
+            // HEX: #990099
+            { "T", new Colour4(153, 0, 153, 255) },
         };
 
         public static readonly Dictionary<string, Colour4> DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED = new Dictionary<string, Colour4>()
         {
-            // HEX: #A62121   HSV 0°, 80%, 70%
-            { "Z", new Colour4(166, 33, 33, 255) },
-            // HEX: #BF7326   HSV 30°, 80%, 75%
-            { "L", new Colour4(191, 115, 38, 255) },
-            // HEX: #BFBF26   HSV 60°, 80%, 75%
-            { "O", new Colour4(191, 191, 38, 255) },
-            // HEX: #38BF26   HSV 105°, 80%, 55%
-            { "S", new Colour4(56, 140, 28, 255) },
-            // HEX: #26BFBF   HSV 180°, 80%, 80%
-            { "I", new Colour4(38, 191, 191, 255) },
-            // HEX: #2638BF   HSV 225°, 80%, 55%
-            { "J", new Colour4(28, 56, 140, 255) },
-            // HEX: #BF26BF   HSV 300°, 80%, 55%
-            { "T", new Colour4(140, 28, 140, 255) },
+            // HEX: #991f1f
+            { "Z", new Colour4(153, 31, 31, 255) },
+            // HEX: #b36b24
+            { "L", new Colour4(179, 107, 36, 255) },
+            // HEX: #b3b324
+            { "O", new Colour4(179, 179, 36, 255) },
+            // HEX: #258019
+            { "S", new Colour4(51, 128, 25, 255) },
+            // HEX: #24b3b3
+            { "I", new Colour4(36, 179, 179, 255) },
+            // HEX: #194d80
+            { "J", new Colour4(25, 77, 128, 255) },
+            // HEX: #BF26BF
+            { "T", new Colour4(128, 25, 128, 255) },
         };
     }
 }

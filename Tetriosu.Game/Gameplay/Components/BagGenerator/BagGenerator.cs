@@ -46,9 +46,6 @@ namespace Tetriosu.Game.Gameplay.Components.BagGenerator
         {
             int x;
 
-            // I believe seven prerolled pieces is a good compromise
-            // to avoid invoking this function at every placement
-            // and small stutters when called
             for (int i = 0; i < 7; i++)
             {
                 x = random.Next(DEFAULT_PIECE_TYPES.Length);
@@ -56,14 +53,10 @@ namespace Tetriosu.Game.Gameplay.Components.BagGenerator
             }
         }
 
-
         private void generateClassicRandomBag()
         {
             int x;
 
-            // I believe seven prerolled pieces is a good compromise
-            // to avoid invoking this function at every placement
-            // and small stutters when called
             for (int i = 0; i < 7; i++)
             {
                 x = random.Next(8);
@@ -93,12 +86,12 @@ namespace Tetriosu.Game.Gameplay.Components.BagGenerator
                     bagGeneratorFunction.Invoke();
                 }
 
-                nextPieceTypes.Add(currentBag[^1]);
-                currentBag.RemoveAt(currentBag.Count - 1);
+                nextPieceTypes.Add(currentBag[0]);
+                currentBag.RemoveAt(0);
             }
 
-            nextPieceType = nextPieceTypes[^1];
-            nextPieceTypes.RemoveAt(nextPieceTypes.Count - 1);
+            nextPieceType = nextPieceTypes[0];
+            nextPieceTypes.RemoveAt(0);
 
             return nextPieceType;
         }

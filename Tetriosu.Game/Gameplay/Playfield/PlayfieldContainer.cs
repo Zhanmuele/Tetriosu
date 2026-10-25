@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -35,7 +36,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
             InternalChildren = new Drawable[]
             {
-                currentPiece = new FullPiece(120, 16.7, 0.0167, 12, RotationSystemAndKicktable.ClassicSRS),
+                currentPiece = new FullPiece(120, 16.7, 0.0167, 32, RotationSystemAndKicktable.TetrIoSRS),
                 bagGenerator = new BagGenerator(NewBagGenerationRules.SevenBag),
                 new Box()
                 {
@@ -49,25 +50,15 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     RelativeSizeAxes = Axes.Both,
                 },
             };
+
+            currentPiece.PiecePlaced += piecePlaced;
         }
 
         protected override void LoadComplete()
         {
-            currentPiece.SetPiece(bagGenerator.GetNextPieceType(), this);
+            setNewPiece();
             base.LoadComplete();
         }
-
-        public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
-
-        public bool OnPressed(KeyBindingPressEvent<FullPieceActions> e)
-        {
-            if (e.Repeat) { return true; }
-            keyPressEventsQueue.Add(e);
-
-            return true;
-        }
-
-        public void OnReleased(KeyBindingReleaseEvent<FullPieceActions> e) => keyReleaseEventsQueue.Add(e);
 
         protected override void Update()
         {
@@ -86,20 +77,34 @@ namespace Tetriosu.Game.Gameplay.Playfield
             base.Update();
         }
 
+        public bool OnPressed(KeyBindingPressEvent<FullPieceActions> e)
+        {
+            if (e.Repeat) { return true; }
+            keyPressEventsQueue.Add(e);
+
+            return true;
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<FullPieceActions> e) => keyReleaseEventsQueue.Add(e);
+
         private void handleKeybindingPressEvent(KeyBindingPressEvent<FullPieceActions> e)
         {
             switch (e.Action)
             {
                 case FullPieceActions.MoveLeft:
-                    currentPiece.HandleMoveLeftKeypress();
+                    currentPiece.HandleMoveLeftKeyPress();
                     break;
 
                 case FullPieceActions.MoveRight:
-                    currentPiece.HandleMoveRightKeypress();
+                    currentPiece.HandleMoveRightKeyPress();
                     break;
 
                 case FullPieceActions.SoftDrop:
-                    currentPiece.HandleSoftDropKeypress();
+                    currentPiece.HandleSoftDropKeyPress();
+                    break;
+
+                case FullPieceActions.HardDrop:
+                    currentPiece.HandleHardDropKeyPress();
                     break;
 
                 case FullPieceActions.RotateClockWise:
@@ -136,6 +141,10 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     currentPiece.HandleSoftDropKeyRelease();
                     break;
 
+                case FullPieceActions.HardDrop:
+                    currentPiece.HandleHardDropKeyRelease();
+                    break;
+
                 case FullPieceActions.RotateClockWise:
                     currentPiece.HandleRotateCwKeyRelease();
                     break;
@@ -152,5 +161,18 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     break;
             }
         }
+
+        private void piecePlaced(object? sender, BlockPiece? p)
+        {
+            RemoveBlockPiece(p);
+
+            setNewPiece();
+        }
+
+        public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
+
+        public void RemoveBlockPiece(BlockPiece? blockPiece) => playfieldBlockContainer.Remove(blockPiece, true);
+
+        private void setNewPiece() => currentPiece.SetPiece(bagGenerator.GetNextPieceType(), this);
     }
 }
