@@ -13,6 +13,7 @@ namespace Tetriosu.Game.Graphics
     {
         private readonly float animationDuration = 150;
         private readonly Vector2 buttonSize = new Vector2(250, 75);
+        private Container container;
         private Box background;
         private SpriteText text;
         private readonly Action<ActionButton, UIEvent>? clickAction;
@@ -24,7 +25,7 @@ namespace Tetriosu.Game.Graphics
 
             AddRangeInternal(new Drawable[]
             {
-                new Container
+                container = new Container
                 {
                     AutoSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,

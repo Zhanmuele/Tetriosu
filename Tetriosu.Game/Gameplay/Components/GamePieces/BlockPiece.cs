@@ -5,48 +5,42 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using Tetriosu.Game.Gameplay.Playfield;
+using Tetriosu.Game.MathFunctions;
 
 namespace Tetriosu.Game.Gameplay.Components.GamePieces
 {
-    public partial class BlockPiece : Container
+    public partial class BlockPiece : Container<Box>
     {
-        private readonly Vector2 blockSize = new Vector2(GameSetupValues.BLOCK_SIZE);
+        private static readonly Vector2 block_size = GameSetupValues.BLOCK_SIZE_V;
         private bool isPlaced = false;
-        private Colour4 blockColour;
-        private Colour4 blockColourWhenPlaced;
         private Box activeBlock;
         private Box placedBlock;
         public Vector2 BlockPosition;
         public readonly bool IsHidden;
 
-        public BlockPiece(Vector2 startPos, Colour4 color, Colour4 colorWhenPlaced, PlayfieldContainer playfield, int i)
+        public BlockPiece(Vector2 startPos, Colour4 colour, Colour4 colourWhenPlaced, PlayfieldContainer playfield, int i)
         {
-            playfield.AddBlockPiece(this);
-
-            BlockPosition = startPos + new Vector2((float)Math.Round(GameSetupValues.DEFAULT_COLUMS / 2, MidpointRounding.AwayFromZero) - 1,
-                                                   GameSetupValues.DEFAULT_ROWS - 22f);
-            blockColour = color;
-            blockColourWhenPlaced = colorWhenPlaced;
-            Position = BlockPosition * blockSize;
+            BlockPosition = startPos + new Vector2((float)Math.Ceiling(GameSetupValues.DEFAULT_COLUMS / 2) - 1, GameSetupValues.DEFAULT_ROWS - 22f);
+            Position = BlockPosition * block_size;
             AutoSizeAxes = Axes.Both;
             Anchor = Anchor.TopLeft;
             Origin = Anchor.TopLeft;
 
-            AddRange(new Drawable[]
+            AddRange(new Box[]
             {
                 activeBlock = new Box
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Size = blockSize,
-                    Colour = blockColour,
+                    Size = block_size,
+                    Colour = colour,
                 },
                 placedBlock = new Box
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Size = blockSize,
-                    Colour = blockColourWhenPlaced,
+                    Size = block_size,
+                    Colour = colourWhenPlaced,
                     Alpha = 0,
                 }
             });
@@ -57,15 +51,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 activeBlock.Alpha = 0;
             }
             else { IsHidden = false; }
-        }
 
-        protected override void Update()
-        {
-            if (isPlaced) { return; }
-
-            UpdatePosition();
-
-            base.Update();
+            playfield.AddBlockPiece(this);
         }
 
         public void PlacePiece()
@@ -75,7 +62,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             activeBlock.Alpha = 0;
         }
 
-        public void UpdatePosition() => Position = BlockPosition * blockSize;
+        public void UpdatePosition() => Position = BlockPosition * block_size;
 
         public bool HorizontalCollisionCheck(float x, ref List<BlockPiece?[]> playfieldData)
         {
@@ -86,7 +73,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 return true;
             }
 
-            if (playfieldData[(int)BlockPosition.Y][(int)x] is not null)
+            if (playfieldData[(int)BlockPosition.Y][(int)x] != null)
             {
                 return true;
             }
@@ -103,7 +90,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 return true;
             }
 
-            if (playfieldData[(int)y][(int)BlockPosition.X] is not null)
+            if (playfieldData[(int)y][(int)BlockPosition.X] != null)
             {
                 return true;
             }
@@ -121,23 +108,14 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             if (!flipPiece)
             {
-                rotatedOffset = rotate90degrees(offset, CCW);
+                rotatedOffset = Vector2Math.RotateVector2(offset, CCW);
             }
             else
             {
-                rotatedOffset = rotate180degrees(offset);
+                rotatedOffset = Vector2Math.Rotate180degrees(offset);
             }
 
             return centerOfRotation + rotatedOffset;
         }
-
-        private static Vector2 rotate90degrees(Vector2 vector, bool CCW)
-        {
-            if (CCW) { return new Vector2(vector.Y, -vector.X); }
-
-            return new Vector2(-vector.Y, vector.X);
-        }
-
-        private static Vector2 rotate180degrees(Vector2 vector) => -vector;
     }
 }

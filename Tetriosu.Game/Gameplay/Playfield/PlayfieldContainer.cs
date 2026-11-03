@@ -11,6 +11,7 @@ using Tetriosu.Game.Gameplay.Components;
 using Tetriosu.Game.Gameplay.Components.BagGenerator;
 using Tetriosu.Game.Gameplay.Components.GamePieces;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
+using Tetriosu.Game.Gameplay.SideBar.NextPieces;
 using Tetriosu.Game.Input.Keybinds;
 
 namespace Tetriosu.Game.Gameplay.Playfield
@@ -20,6 +21,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
         private FullPiece currentPiece;
         private Container playfieldBlockContainer;
         private BagGenerator bagGenerator;
+        private NextPiecesSideBar nextPiecesSideBar;
         private List<KeyBindingPressEvent<FullPieceActions>> keyPressEventsQueue;
         private List<KeyBindingReleaseEvent<FullPieceActions>> keyReleaseEventsQueue;
 
@@ -45,9 +47,16 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                 },
-                playfieldBlockContainer = new Container()
+                playfieldBlockContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
+                },
+                nextPiecesSideBar = new NextPiecesSideBar(1000)
+                {
+                    Anchor = Anchor.BottomRight,
+                    Origin = Anchor.TopLeft,
+                    X = 10,
+                    Y = -GameSetupValues.DEFAULT_VISIBLE_PLAYFIELD_SIZE.Y,
                 },
             };
 
@@ -56,7 +65,9 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
         protected override void LoadComplete()
         {
+            nextPiecesSideBar.LoadNextPiecesSideBar();
             setNewPiece();
+            updateNextPiecesSideBar();
             base.LoadComplete();
         }
 
@@ -167,6 +178,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
             RemoveBlockPiece(p);
 
             setNewPiece();
+            updateNextPiecesSideBar();
         }
 
         public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
@@ -174,5 +186,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
         public void RemoveBlockPiece(BlockPiece? blockPiece) => playfieldBlockContainer.Remove(blockPiece, true);
 
         private void setNewPiece() => currentPiece.SetPiece(bagGenerator.GetNextPieceType(), this);
+
+        private void updateNextPiecesSideBar() => nextPiecesSideBar.UpdateNextPiecesSideBar();
     }
 }

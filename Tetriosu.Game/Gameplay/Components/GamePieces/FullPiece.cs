@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using osu.Framework.Graphics;
+using osu.Framework.Logging;
 using osuTK;
+using Tetriosu.Game.CoolerMathFunctions;
 using Tetriosu.Game.Gameplay.Components.Kicktables;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
 using Tetriosu.Game.Gameplay.Playfield;
@@ -16,7 +18,6 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         private int autoLockCountdown = 15;
         private string pieceType = "";
         private List<BlockPiece> blockPieces = new List<BlockPiece>(8);
-        private List<Vector2> blockStartingPositions = new List<Vector2>(8);
         private readonly List<BlockPiece?[]> emptyField;
         private List<BlockPiece?[]> playfieldData;
 
@@ -53,6 +54,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #region rotation variables
 
+        private readonly int rotationModuloValue = 4;
         private int rotationState = 0;
         private bool rotateCwKeyHeld = false;
         private bool rotateCcwKeyHeld = false;
@@ -129,29 +131,23 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
         }
 
-        // go to heck truncated modulo
-        public static int MathModuloByFour(int i) => ((i % 4) + 4) % 4;
-
-        public void SetPiece(string blocktype, PlayfieldContainer playfield)
+        public void SetPiece(string pieceType, PlayfieldContainer playfield)
         {
             if (!isSoftDropping) { activateGravityTimer(); }
             else { activateSoftDropGravityTimer(); }
 
-            pieceType = blocktype;
+            this.pieceType = pieceType;
             isMoving = false;
             rotationState = 0;
             autoLockCountdown = 15;
-
             blockPieces.Clear();
-            blockStartingPositions.Clear();
-            blockStartingPositions.AddRange(GameSetupValues.SRS_FULL_BLOCK_SHAPE[pieceType]);
 
             int i = 0;
-            foreach (Vector2 blockPos in blockStartingPositions)
+            foreach (Vector2 blockPos in GameSetupValues.DEFAULT_FULL_BLOCK_SHAPE_POS[this.pieceType])
             {
                 blockPieces.Add(new BlockPiece(blockPos,
-                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS[pieceType],
-                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED[pieceType],
+                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS[this.pieceType],
+                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED[this.pieceType],
                     playfield, i));
 
                 i++;
@@ -263,7 +259,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
             else if ((dasDelayTimer <= 0 || dasDelayTimer == null) && (arrDelayTimer <= 0 || arrDelayTimer == null))
             {
-                if (dasDelayTimer is not null)
+                if (dasDelayTimer != null)
                 {
                     activateArrTimer();
                     arrDelayTimer -= dasDelayTimer;
@@ -292,6 +288,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             if (!horizontalCollisionCheck(x))
             {
                 movePieceHorizontally(x);
+                autoLockCounterCheck();
                 verticalCollisiionCheck(1);
 
                 return true;
@@ -320,6 +317,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             foreach (BlockPiece p in blockPieces)
             {
                 p.BlockPosition.X += x;
+                p.UpdatePosition();
             }
         }
 
@@ -383,6 +381,12 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             {
                 if (p.VerticalCollisionCheck(p.BlockPosition.Y + y, ref playfieldData))
                 {
+                    if (autoLockCountdown == 0)
+                    {
+                        lockAndPlacePiece();
+                        return true;
+                    }
+
                     if (lockDelayTimer == null) { activateLoclDelayTimer(); }
                     deactivateGravityTimer();
 
@@ -390,7 +394,6 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 }
             }
 
-            deactivateLockDelayTimer();
             if (gravityTimer == null)
             {
                 if (isSoftDropping) { activateSoftDropGravityTimer(); }
@@ -405,6 +408,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             foreach (BlockPiece p in blockPieces)
             {
                 p.BlockPosition.Y += y;
+                p.UpdatePosition();
             }
         }
 
@@ -423,10 +427,10 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             hasHardDropped = true;
             pushPieceToBottomOfPlayfield();
-            placePiece();
+            lockAndPlacePiece();
         }
 
-        private void placePiece()
+        private void lockAndPlacePiece()
         {
             BlockPiece? pToRemove = null;
 
@@ -443,7 +447,21 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 p.PlacePiece();
             }
 
+            deactivateLockDelayTimer();
             OnPiecePlaced(pToRemove);
+        }
+
+        private bool autoLockCounterCheck()
+        {
+            if (lockDelayTimer != null)
+            {
+                autoLockCountdown--;
+                deactivateLockDelayTimer();
+
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -469,11 +487,12 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             bool isCollidingAfterRotation = true;
             int failedRotationAttempts = -1;
-            rotationState += 1;
+            rotationState++;
             hasRotatedCW = true;
 
             Vector2 appliedKick;
-            List<Vector2> rotatedPositions = rotatePiece(false);
+            List<Vector2> startingRotatedPositions = rotatePiece(false);
+            List<Vector2> rotatedPositions = [.. startingRotatedPositions];
 
             while (isCollidingAfterRotation)
             {
@@ -481,20 +500,20 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
                 if (isCollidingAfterRotation)
                 {
-                    failedRotationAttempts += 1;
-                    rotatedPositions = rotatePiece(false);
+                    failedRotationAttempts++;
+                    rotatedPositions = [.. startingRotatedPositions];
 
                     try
                     {
                         if (pieceType != "I")
                         {
-                            appliedKick = kicktableCW[MathModuloByFour(rotationState)][failedRotationAttempts];
+                            appliedKick = kicktableCW[CoolerMath.RealIntModulo(rotationState, rotationModuloValue)][failedRotationAttempts];
                         }
-                        else { appliedKick = iPieceKicktableCW[MathModuloByFour(rotationState)][failedRotationAttempts]; }
+                        else { appliedKick = iPieceKicktableCW[CoolerMath.RealIntModulo(rotationState, rotationModuloValue)][failedRotationAttempts]; }
                     }
                     catch (IndexOutOfRangeException)
                     {
-                        rotationState -= 1;
+                        rotationState--;
                         return;
                     }
 
@@ -502,7 +521,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 }
             }
 
-            updateRotatedPiecePositions(ref blockPieces, rotatedPositions);
+            updateRotatedPiecePositions(rotatedPositions);
+            autoLockCounterCheck();
             verticalCollisiionCheck(1);
         }
 
@@ -510,11 +530,12 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             bool isCollidingAfterRotation = true;
             int failedRotationAttempts = -1;
-            rotationState -= 1;
+            rotationState--;
             hasRotatedCCW = true;
 
             Vector2 appliedKick;
-            List<Vector2> rotatedPositions = rotatePiece(true);
+            List<Vector2> startingRotatedPositions = rotatePiece(true);
+            List<Vector2> rotatedPositions = [.. startingRotatedPositions];
 
             while (isCollidingAfterRotation)
             {
@@ -522,20 +543,20 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
                 if (isCollidingAfterRotation)
                 {
-                    failedRotationAttempts += 1;
-                    rotatedPositions = rotatePiece(true);
+                    failedRotationAttempts++;
+                    rotatedPositions = [.. startingRotatedPositions];
 
                     try
                     {
                         if (pieceType != "I")
                         {
-                            appliedKick = kicktableCCW[MathModuloByFour(rotationState)][failedRotationAttempts];
+                            appliedKick = kicktableCCW[CoolerMath.RealIntModulo(rotationState, rotationModuloValue)][failedRotationAttempts];
                         }
-                        else { appliedKick = iPieceKicktableCCW[MathModuloByFour(rotationState)][failedRotationAttempts]; }
+                        else { appliedKick = iPieceKicktableCCW[CoolerMath.RealIntModulo(rotationState, rotationModuloValue)][failedRotationAttempts]; }
                     }
                     catch (IndexOutOfRangeException)
                     {
-                        rotationState += 1;
+                        rotationState++;
                         return;
                     }
 
@@ -543,7 +564,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                 }
             }
 
-            updateRotatedPiecePositions(ref blockPieces, rotatedPositions);
+            updateRotatedPiecePositions(rotatedPositions);
+            autoLockCounterCheck();
             verticalCollisiionCheck(1);
         }
 
@@ -572,7 +594,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                         return true;
                     }
 
-                    if (playfieldData[(int)pos.Y][(int)pos.X] is not null)
+                    if (playfieldData[(int)pos.Y][(int)pos.X] != null)
                     {
                         return true;
                     }
@@ -598,11 +620,12 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
         }
 
-        private void updateRotatedPiecePositions(ref List<BlockPiece> blockPieces, List<Vector2> rotatedPositions)
+        private void updateRotatedPiecePositions(List<Vector2> rotatedPositions)
         {
             for (int i = 0; i < blockPieces.Count; i++)
             {
                 blockPieces[i].BlockPosition = rotatedPositions[i];
+                blockPieces[i].UpdatePosition();
             }
         }
 
@@ -631,9 +654,10 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         private void updateTimers()
         {
             gravityTimer -= Time.Elapsed;
-            if (dasDelayTimer is not null) { dasDelayTimer -= Time.Elapsed; }
-            if (arrDelayTimer is not null) { arrDelayTimer -= Time.Elapsed; }
-            if (lockDelayTimer is not null) { lockDelayTimer -= Time.Elapsed; }
+            if (dasDelayTimer != null) { dasDelayTimer -= Time.Elapsed; }
+            if (arrDelayTimer != null) { arrDelayTimer -= Time.Elapsed; }
+            if (lockDelayTimer != null) { lockDelayTimer -= Time.Elapsed; }
+            if (lockDelayTimer <= 0) { lockAndPlacePiece(); }
         }
 
         #endregion
