@@ -3,6 +3,8 @@ using osu.Framework.Graphics;
 using osu.Framework.Screens;
 using Tetriosu.Game.Screens;
 
+#nullable disable
+
 namespace Tetriosu.Game
 {
     public partial class TetriosuGame : TetriosuGameBase

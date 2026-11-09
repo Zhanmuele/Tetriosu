@@ -433,7 +433,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         private void holdPiece()
         {
-            List<BlockPiece> p = 
+            List<BlockPiece> piecesToRemove = new List<BlockPiece>(blockPieces);
+            OnPieceHeld(piecesToRemove);
         }
 
         private void handleHardDrop()
@@ -447,13 +448,13 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         private void lockAndPlacePiece()
         {
-            List<BlockPiece> pToRemove = new List<BlockPiece>(50);
+            List<BlockPiece> piecesToRemove = new List<BlockPiece>(50);
 
             foreach (BlockPiece p in blockPieces)
             {
                 if (p.IsHidden)
                 {
-                    pToRemove.Add(p);
+                    piecesToRemove.Add(p);
                     continue;
                 }
 
@@ -463,7 +464,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             }
 
             deactivateLockDelayTimer();
-            OnPiecePlaced(pToRemove);
+            OnPiecePlaced(piecesToRemove);
         }
 
         private bool autoLockCounterCheck()
