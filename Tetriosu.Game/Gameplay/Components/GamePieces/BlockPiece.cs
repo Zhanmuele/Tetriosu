@@ -64,7 +64,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         public void UpdatePosition() => Position = BlockPosition * block_size;
 
-        public bool HorizontalCollisionCheck(float x, ref List<BlockPiece?[]> playfieldData)
+        public bool HorizontalCollisionCheck(float x, List<BlockPiece?[]> playfieldData)
         {
             if (IsHidden) { return false; }
 
@@ -81,7 +81,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             return false;
         }
 
-        public bool VerticalCollisionCheck(float y, ref List<BlockPiece?[]> playfieldData)
+        public bool VerticalCollisionCheck(float y, List<BlockPiece?[]> playfieldData)
         {
             if (IsHidden) { return false; }
 
@@ -108,11 +108,11 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             if (!flipPiece)
             {
-                rotatedOffset = Vector2Math.RotateVector2(offset, CCW);
+                rotatedOffset = Vector2Math.RotateVectorBy90degrees(offset, CCW);
             }
             else
             {
-                rotatedOffset = Vector2Math.Rotate180degrees(offset);
+                rotatedOffset = Vector2Math.RotateVectorBy180degrees(offset);
             }
 
             return centerOfRotation + rotatedOffset;

@@ -12,7 +12,7 @@ namespace Tetriosu.Game.Gameplay.SideBar.NextPieces
 {
     public partial class NextPiecesSideBar : CompositeDrawable
     {
-        private Container<SideBarFullPiece> nextPiecesContainer;
+        private Container nextPiecesContainer;
         private int nextPiecesCount
         {
             get;
@@ -41,7 +41,7 @@ namespace Tetriosu.Game.Gameplay.SideBar.NextPieces
                     Width = GameSetupValues.BLOCK_SIZE * 6f,
                     Height = GameSetupValues.BLOCK_SIZE * (nextPiecesCount * 3 + 1),
                 },
-                nextPiecesContainer = new Container<SideBarFullPiece>()
+                nextPiecesContainer = new Container()
                 {
                     Width = GameSetupValues.BLOCK_SIZE * 6f,
                     Height = GameSetupValues.BLOCK_SIZE * (nextPiecesCount * 3 + 1),
@@ -71,7 +71,7 @@ namespace Tetriosu.Game.Gameplay.SideBar.NextPieces
         {
             nextPiecesContainer.Remove(nextPiecesContainer.Children[0], true);
 
-            foreach (SideBarFullPiece? child in nextPiecesContainer.Children)
+            foreach (Drawable? child in nextPiecesContainer.Children)
             {
                 child.Y -= GameSetupValues.BLOCK_SIZE * 3;
             }

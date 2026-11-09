@@ -25,8 +25,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
         private List<KeyBindingPressEvent<FullPieceActions>> keyPressEventsQueue;
         private List<KeyBindingReleaseEvent<FullPieceActions>> keyReleaseEventsQueue;
 
-        [BackgroundDependencyLoader]
-        private void load()
+         public PlayfieldContainer()
         {
             keyPressEventsQueue = new List<KeyBindingPressEvent<FullPieceActions>>();
             keyReleaseEventsQueue = new List<KeyBindingReleaseEvent<FullPieceActions>>();
@@ -87,6 +86,8 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
             base.Update();
         }
+
+        #region Keybinding events
 
         public bool OnPressed(KeyBindingPressEvent<FullPieceActions> e)
         {
@@ -173,7 +174,9 @@ namespace Tetriosu.Game.Gameplay.Playfield
             }
         }
 
-        private void piecePlaced(object? sender, BlockPiece? p)
+        #endregion
+
+        private void piecePlaced(object? sender, List<BlockPiece> p)
         {
             RemoveBlockPiece(p);
 
@@ -183,7 +186,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
         public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
 
-        public void RemoveBlockPiece(BlockPiece? blockPiece) => playfieldBlockContainer.Remove(blockPiece, true);
+        public void RemoveBlockPiece(List<BlockPiece> blockPiece) => playfieldBlockContainer.RemoveRange(blockPiece, true);
 
         private void setNewPiece() => currentPiece.SetPiece(bagGenerator.GetNextPieceType(), this);
 

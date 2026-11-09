@@ -4,17 +4,17 @@ using System.ComponentModel;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osuTK;
-using Tetriosu.Game.CoolerMathFunctions;
 using Tetriosu.Game.Gameplay.Components.Kicktables;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
 using Tetriosu.Game.Gameplay.Playfield;
+using Tetriosu.Game.MathFunctions;
 
 namespace Tetriosu.Game.Gameplay.Components.GamePieces
 {
     public partial class FullPiece : Drawable
     {
-        public string HeldPieceType = "";
-        public bool HasSwapped = false;
+        public string HeldPieceType { get; private set; } = "";
+        private bool hasSwapped = false;
         private int autoLockCountdown = 15;
         private string pieceType = "";
         private List<BlockPiece> blockPieces = new List<BlockPiece>(8);
@@ -76,7 +76,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #region events
 
-        public event EventHandler<BlockPiece?> PiecePlaced;
+        public event EventHandler<List<BlockPiece>>? PiecePlaced;
+        public event EventHandler<List<BlockPiece>>? PieceHeld;
 
         #endregion
 
@@ -102,11 +103,13 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             {
                 case RotationSystemAndKicktable.ClassicSRS:
                 case RotationSystemAndKicktable.TetrIoSRS:
-                    kicktableCW = KicktableDictionary.CW_KICKTABLE_SRS;
-                    kicktableCCW = KicktableDictionary.CCW_KICKTABLE_SRS;
+                    kicktableCW = AllowedKicktables.CW_KICKTABLE_SRS;
+                    kicktableCCW = AllowedKicktables.CCW_KICKTABLE_SRS;
                     break;
 
                 case RotationSystemAndKicktable.None:
+                    kicktableCW = AllowedKicktables.NONE;
+                    kicktableCCW = AllowedKicktables.NONE;
                     break;
 
                 default: throw new InvalidEnumArgumentException();
@@ -115,16 +118,18 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             switch (kicktableRule)
             {
                 case RotationSystemAndKicktable.ClassicSRS:
-                    iPieceKicktableCW = KicktableDictionary.CW_I_PIECE_KICKTABLE_CLASSIC_SRS;
-                    iPieceKicktableCCW = KicktableDictionary.CCW_I_PIECE_KICKTABLE_CLASSIC_SRS;
+                    iPieceKicktableCW = AllowedKicktables.CW_I_PIECE_KICKTABLE_CLASSIC_SRS;
+                    iPieceKicktableCCW = AllowedKicktables.CCW_I_PIECE_KICKTABLE_CLASSIC_SRS;
                     break;
 
                 case RotationSystemAndKicktable.TetrIoSRS:
-                    iPieceKicktableCW = KicktableDictionary.CW_I_PIECE_KICKTABLE_TETRIO_SRS;
-                    iPieceKicktableCCW = KicktableDictionary.CCW_I_PIECE_KICKTABLE_TETRIO_SRS;
+                    iPieceKicktableCW = AllowedKicktables.CW_I_PIECE_KICKTABLE_TETRIO_SRS;
+                    iPieceKicktableCCW = AllowedKicktables.CCW_I_PIECE_KICKTABLE_TETRIO_SRS;
                     break;
 
                 case RotationSystemAndKicktable.None:
+                    iPieceKicktableCW = AllowedKicktables.NONE;
+                    iPieceKicktableCCW = AllowedKicktables.NONE;
                     break;
 
                 default: throw new InvalidEnumArgumentException();
@@ -301,7 +306,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             foreach (BlockPiece p in blockPieces)
             {
-                if (p.HorizontalCollisionCheck(p.BlockPosition.X + x, ref playfieldData))
+                if (p.HorizontalCollisionCheck(p.BlockPosition.X + x, playfieldData))
                 {
                     return true;
                 }
@@ -379,7 +384,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         {
             foreach (BlockPiece p in blockPieces)
             {
-                if (p.VerticalCollisionCheck(p.BlockPosition.Y + y, ref playfieldData))
+                if (p.VerticalCollisionCheck(p.BlockPosition.Y + y, playfieldData))
                 {
                     if (autoLockCountdown == 0)
                     {
@@ -416,9 +421,19 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #region hard drop, hold piece and piece locking
 
-        protected void OnPiecePlaced(BlockPiece? p)
+        protected void OnPiecePlaced(List<BlockPiece> p)
         {
             PiecePlaced?.Invoke(this, p);
+        }
+
+        protected void OnPieceHeld(List<BlockPiece> p)
+        {
+            PiecePlaced?.Invoke(this, p);
+        }
+
+        private void holdPiece()
+        {
+            List<BlockPiece> p = 
         }
 
         private void handleHardDrop()
@@ -432,13 +447,13 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         private void lockAndPlacePiece()
         {
-            BlockPiece? pToRemove = null;
+            List<BlockPiece> pToRemove = new List<BlockPiece>(50);
 
             foreach (BlockPiece p in blockPieces)
             {
                 if (p.IsHidden)
                 {
-                    pToRemove = p;
+                    pToRemove.Add(p);
                     continue;
                 }
 
@@ -517,7 +532,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                         return;
                     }
 
-                    applyRotationKicktable(ref rotatedPositions, appliedKick);
+                    applyRotationKicktable(rotatedPositions, appliedKick);
                 }
             }
 
@@ -560,7 +575,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
                         return;
                     }
 
-                    applyRotationKicktable(ref rotatedPositions, appliedKick);
+                    applyRotationKicktable(rotatedPositions, appliedKick);
                 }
             }
 
@@ -612,12 +627,9 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             return false;
         }
 
-        private void applyRotationKicktable(ref List<Vector2> rotatedPositions, Vector2 appliedKick)
+        private void applyRotationKicktable(List<Vector2> rotatedPositions, Vector2 appliedKick)
         {
-            for (int i = 0; i < rotatedPositions.Count; i++)
-            {
-                rotatedPositions[i] += appliedKick;
-            }
+            Vector2Math.AddVector2ToVector2List(rotatedPositions, appliedKick);
         }
 
         private void updateRotatedPiecePositions(List<Vector2> rotatedPositions)

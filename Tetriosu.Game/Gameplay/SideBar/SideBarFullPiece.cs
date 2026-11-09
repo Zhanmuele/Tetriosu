@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osuTK;
 using osuTK.Graphics;
 using Tetriosu.Game.Gameplay.Components;
+using Tetriosu.Game.MathFunctions;
 
 namespace Tetriosu.Game.Gameplay.SideBar
 {
@@ -39,10 +40,7 @@ namespace Tetriosu.Game.Gameplay.SideBar
 
                 if (hasNegativeX)
                 {
-                    for (int i = 0; i < positions.Length; i++)
-                    {
-                        positions[i] += Vector2.UnitX;
-                    }
+                    Vector2Math.AddVector2ToVector2Array(ref positions, Vector2.UnitX);
                 }
             }
 
@@ -53,10 +51,7 @@ namespace Tetriosu.Game.Gameplay.SideBar
 
                 if (hasNegativeY)
                 {
-                    for (int i = 0; i < positions.Length; i++)
-                    {
-                        positions[i] += Vector2.UnitY;
-                    }
+                    Vector2Math.AddVector2ToVector2Array(ref positions, Vector2.UnitY);
                 }
             }
 

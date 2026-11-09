@@ -1,4 +1,4 @@
-﻿namespace Tetriosu.Game.CoolerMathFunctions
+﻿namespace Tetriosu.Game.MathFunctions
 {
     public static class CoolerMath
     {

@@ -2,7 +2,7 @@
 
 namespace Tetriosu.Game.Gameplay.Components.Kicktables
 {
-    public class KicktableDictionary
+    public class AllowedKicktables
     {
         // Kicktable to use for J, L, S, T, Z pieces in SRS and variants 
         public static readonly Vector2[][] CW_KICKTABLE_SRS = new Vector2[4][]
@@ -79,6 +79,14 @@ namespace Tetriosu.Game.Gameplay.Components.Kicktables
             new Vector2[4] { new Vector2(+1,0), new Vector2(-2,0), new Vector2(+1,-2), new Vector2(-2,+1) },
             // target rotation 0 -> 3
             new Vector2[4] { new Vector2(-1,0), new Vector2(+2,0), new Vector2(+2,+1), new Vector2(-1,-2) },
+        };
+
+        public static readonly Vector2[][] NONE = new Vector2[4][]
+        {
+            new Vector2[1] {Vector2.Zero},
+            new Vector2[1] {Vector2.Zero},
+            new Vector2[1] {Vector2.Zero},
+            new Vector2[1] {Vector2.Zero},
         };
     }
 }

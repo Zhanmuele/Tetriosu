@@ -9,8 +9,8 @@ namespace Tetriosu.Game.Gameplay.Components.BagGenerator
     public partial class BagGenerator : Drawable
     {
         public static readonly string[] DEFAULT_PIECE_TYPES = new string[7] { "Z", "L", "O", "S", "I", "J", "T" };
-        public static List<string> NextPieceTypes { get; private set; }
-        private List<string> currentBag = new List<string>(14);
+        public static List<string> NextPieceTypes { get; private set; } = new List<string>();
+        private List<string> currentBag = new List<string>();
         private Random random = new Random();
         private string previousRolledPieceType = "";
         private Action bagGeneratorFunction;
@@ -35,7 +35,6 @@ namespace Tetriosu.Game.Gameplay.Components.BagGenerator
                     throw new InvalidEnumArgumentException($"{nameof(rule)} is not an valid NewBagGenerationRules rule");
             }
 
-            NextPieceTypes = new List<string>(5);
             bagGeneratorFunction.Invoke();
             fillNextPiecesBar();
         }
