@@ -38,12 +38,12 @@ namespace Tetriosu.Game.Gameplay.SideBar.NextPieces
                 new Box()
                 {
                     Colour = Color4.Black,
-                    Width = GameSetupValues.BLOCK_SIZE * 6f,
+                    Width = GameSetupValues.BLOCK_SIZE * 6,
                     Height = GameSetupValues.BLOCK_SIZE * (nextPiecesCount * 3 + 1),
                 },
                 nextPiecesContainer = new Container()
                 {
-                    Width = GameSetupValues.BLOCK_SIZE * 6f,
+                    Width = GameSetupValues.BLOCK_SIZE * 6,
                     Height = GameSetupValues.BLOCK_SIZE * (nextPiecesCount * 3 + 1),
                 },
             };
@@ -67,7 +67,7 @@ namespace Tetriosu.Game.Gameplay.SideBar.NextPieces
             }
         }
 
-        public void UpdateNextPiecesSideBar()
+        public void UpdateShownPieces()
         {
             nextPiecesContainer.Remove(nextPiecesContainer.Children[0], true);
 

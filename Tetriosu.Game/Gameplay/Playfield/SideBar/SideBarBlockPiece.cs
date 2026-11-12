@@ -11,6 +11,7 @@ namespace Tetriosu.Game.Gameplay.SideBar
 
         public SideBarBlockPiece(Vector2 startPos, Colour4 colour)
         {
+            Size = GameSetupValues.BLOCK_SIZE_V;
             Colour = colour;
             Position = block_size * startPos;
         }

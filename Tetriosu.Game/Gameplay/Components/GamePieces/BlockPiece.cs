@@ -98,7 +98,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             return false;
         }
 
-        public Vector2 RotatePosition(Vector2 centerOfRotation, bool CCW, bool flipPiece = false)
+        public Vector2 GetRotatedPosition(Vector2 centerOfRotation, bool CCW, bool flipPiece = false)
         {
             Vector2 offset = BlockPosition - centerOfRotation;
 

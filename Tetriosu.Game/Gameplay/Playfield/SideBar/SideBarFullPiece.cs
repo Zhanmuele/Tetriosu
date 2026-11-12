@@ -62,7 +62,6 @@ namespace Tetriosu.Game.Gameplay.SideBar
 
                 box.Add(new SideBarBlockPiece(pos, GameSetupValues.DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED[pieceType])
                 {
-                    Size = GameSetupValues.BLOCK_SIZE_V,
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                 });

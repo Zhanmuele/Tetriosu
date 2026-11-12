@@ -13,13 +13,9 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 {
     public partial class FullPiece : Drawable
     {
-        public string HeldPieceType { get; private set; } = "";
-        private bool hasSwapped = false;
-        private int autoLockCountdown = 15;
-        private string pieceType = "";
+        private List<BlockPiece?[]> playfieldData = new List<BlockPiece?[]>((int)GameSetupValues.DEFAULT_ROWS);
+        public string PieceType { get; private set; } = "";
         private List<BlockPiece> blockPieces = new List<BlockPiece>(8);
-        private readonly List<BlockPiece?[]> emptyField;
-        private List<BlockPiece?[]> playfieldData;
 
         #region timers (should really create a class for this :P)
 
@@ -47,8 +43,6 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
         private bool rightMovementKeyIsHeldLast = false;
         private bool isSoftDropKeyHeld = false;
         private bool isSoftDropping = false;
-        private bool isHardDropKeyHeld = false;
-        private bool hasHardDropped = false;
 
         #endregion
 
@@ -74,16 +68,26 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         #endregion
 
-        #region events
+        #region hard drop, hold piece and lock piece variables
 
-        public event EventHandler<List<BlockPiece>>? PiecePlaced;
-        public event EventHandler<List<BlockPiece>>? PieceHeld;
+        public string HeldPieceType = "";
+        private bool isHardDropKeyHeld = false;
+        private bool hasHardDropped = false;
+        private bool isHoldPieceKeyHeld = false;
+        private bool hasHeldPiece = false;
+        private int autoLockCountdown = 15;
+
+        #endregion
+
+        #region piece events
+
+        public event EventHandler<List<BlockPiece>>? PiecePlacedEvent;
+        public event EventHandler<List<BlockPiece>>? PieceHeldEvent;
 
         #endregion
 
         public FullPiece(double dasDelayValue, double arrDelayValue, double startingGravityValue, double softDropMultiplierValue, RotationSystemAndKicktable kicktableRule)
         {
-            emptyField = new List<BlockPiece?[]>(50);
             dasDelay = dasDelayValue;
             arrDelay = arrDelayValue;
             gravityG = startingGravityG = startingGravityValue;
@@ -94,10 +98,8 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             for (int i = 0; i < GameSetupValues.DEFAULT_ROWS; i++)
             {
-                emptyField.Add(new BlockPiece?[(int)GameSetupValues.DEFAULT_COLUMS]);
+                playfieldData.Add(new BlockPiece?[(int)GameSetupValues.DEFAULT_COLUMS]);
             }
-
-            playfieldData = [.. emptyField];
 
             switch (kicktableRule)
             {
@@ -141,18 +143,18 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             if (!isSoftDropping) { activateGravityTimer(); }
             else { activateSoftDropGravityTimer(); }
 
-            this.pieceType = pieceType;
+            PieceType = pieceType;
             isMoving = false;
             rotationState = 0;
             autoLockCountdown = 15;
             blockPieces.Clear();
 
             int i = 0;
-            foreach (Vector2 blockPos in GameSetupValues.DEFAULT_FULL_BLOCK_SHAPE_POS[this.pieceType])
+            foreach (Vector2 blockPos in GameSetupValues.DEFAULT_FULL_BLOCK_SHAPE_POS[PieceType])
             {
                 blockPieces.Add(new BlockPiece(blockPos,
-                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS[this.pieceType],
-                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED[this.pieceType],
+                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS[PieceType],
+                    GameSetupValues.DEFAULT_FULL_BLOCK_COLORS_WHEN_PLACED[PieceType],
                     playfield, i));
 
                 i++;
@@ -161,6 +163,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         protected override void Update()
         {
+            handleHoldPiece();
             handleHardDrop();
             handlePieceRotation();
             handleVerticalMovement();
@@ -212,15 +215,25 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             hasHardDropped = false;
         }
 
+        public void HandleHoldPieceKeyPress()
+        {
+            isHoldPieceKeyHeld = true;
+        }
+
+        public void HandleHoldPieceKeyRelease()
+        {
+            isHoldPieceKeyHeld = false;
+        }
+
         #endregion
 
         #region rotation key events
 
         public void HandleRotateCwKeypress() => rotateCwKeyHeld = true;
 
-        public void HandleRotateCcwKeypress() => rotateCcwKeyHeld = true;
+        public void HandleRotateCcwKeyPress() => rotateCcwKeyHeld = true;
 
-        public void HandleFlipPieceKeypress() => flipPieceKeyHeld = true;
+        public void HandleFlipPieceKeyPress() => flipPieceKeyHeld = true;
 
         public void HandleRotateCwKeyRelease()
         {
@@ -423,18 +436,12 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
         protected void OnPiecePlaced(List<BlockPiece> p)
         {
-            PiecePlaced?.Invoke(this, p);
+            PiecePlacedEvent?.Invoke(this, p);
         }
 
         protected void OnPieceHeld(List<BlockPiece> p)
         {
-            PiecePlaced?.Invoke(this, p);
-        }
-
-        private void holdPiece()
-        {
-            List<BlockPiece> piecesToRemove = new List<BlockPiece>(blockPieces);
-            OnPieceHeld(piecesToRemove);
+            PieceHeldEvent?.Invoke(this, p);
         }
 
         private void handleHardDrop()
@@ -442,6 +449,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
             if (hasHardDropped || !isHardDropKeyHeld) { return; }
 
             hasHardDropped = true;
+            hasHeldPiece = false;
             pushPieceToBottomOfPlayfield();
             lockAndPlacePiece();
         }
@@ -465,6 +473,15 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             deactivateLockDelayTimer();
             OnPiecePlaced(piecesToRemove);
+        }
+
+        private void handleHoldPiece()
+        {
+            if (hasHeldPiece || !isHoldPieceKeyHeld) { return; }
+
+            hasHeldPiece = true;
+            List<BlockPiece> piecesToRemove = new List<BlockPiece>(blockPieces);
+            OnPieceHeld(piecesToRemove);
         }
 
         private bool autoLockCounterCheck()
@@ -521,7 +538,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
                     try
                     {
-                        if (pieceType != "I")
+                        if (PieceType != "I")
                         {
                             appliedKick = kicktableCW[CoolerMath.RealIntModulo(rotationState, rotationModuloValue)][failedRotationAttempts];
                         }
@@ -564,7 +581,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
                     try
                     {
-                        if (pieceType != "I")
+                        if (PieceType != "I")
                         {
                             appliedKick = kicktableCCW[CoolerMath.RealIntModulo(rotationState, rotationModuloValue)][failedRotationAttempts];
                         }
@@ -592,7 +609,7 @@ namespace Tetriosu.Game.Gameplay.Components.GamePieces
 
             foreach (BlockPiece p in blockPieces)
             {
-                Vector2 rotPos = p.RotatePosition(centerOfRotation, CCW, flipPiece);
+                Vector2 rotPos = p.GetRotatedPosition(centerOfRotation, CCW, flipPiece);
                 rotatedPositions.Add(rotPos);
             }
 

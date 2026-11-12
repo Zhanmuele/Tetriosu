@@ -19,23 +19,17 @@ namespace Tetriosu.Game.Screens
                 {
                     Colour = Colour4.DarkGreen
                 },
-                new ActionButton(Colour4.MediumSeaGreen, Colour4.Black, "40 Lines", 32, (_, _) => loadSoloGameScreen())
+                new ActionButton(Colour4.MediumSeaGreen, Colour4.Black, "Test game", 32, (_, _) => loadSoloGameScreen())
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Y = -50
                 },
-                new ActionButton(Colour4.MediumSeaGreen, Colour4.Black, "Blitz / Ultra", 32, (_, _) => loadSoloGameScreen())
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Y = 50
-                },
                 new ActionButton(Colour4.MediumPurple, Colour4.Black, "Back", 32, (_, _) => this.Exit())
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Y = 150
+                    Y = 50
                 }
             };
         }

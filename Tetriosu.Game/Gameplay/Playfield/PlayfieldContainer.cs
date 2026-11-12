@@ -11,6 +11,7 @@ using Tetriosu.Game.Gameplay.Components;
 using Tetriosu.Game.Gameplay.Components.BagGenerator;
 using Tetriosu.Game.Gameplay.Components.GamePieces;
 using Tetriosu.Game.Gameplay.GameRuleEnum;
+using Tetriosu.Game.Gameplay.SideBar.HeldPiece;
 using Tetriosu.Game.Gameplay.SideBar.NextPieces;
 using Tetriosu.Game.Input.Keybinds;
 
@@ -22,6 +23,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
         private Container playfieldBlockContainer;
         private BagGenerator bagGenerator;
         private NextPiecesSideBar nextPiecesSideBar;
+        private HeldPieceSideBar heldPieceSideBar;
         private List<KeyBindingPressEvent<FullPieceActions>> keyPressEventsQueue;
         private List<KeyBindingReleaseEvent<FullPieceActions>> keyReleaseEventsQueue;
 
@@ -50,22 +52,30 @@ namespace Tetriosu.Game.Gameplay.Playfield
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
-                nextPiecesSideBar = new NextPiecesSideBar(1000)
+                nextPiecesSideBar = new NextPiecesSideBar(5)
                 {
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.TopLeft,
                     X = 10,
                     Y = -GameSetupValues.DEFAULT_VISIBLE_PLAYFIELD_SIZE.Y,
                 },
+                heldPieceSideBar = new HeldPieceSideBar()
+                {
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.TopRight,
+                    X = -10,
+                    Y = -GameSetupValues.DEFAULT_VISIBLE_PLAYFIELD_SIZE.Y,
+                }
             };
 
-            currentPiece.PiecePlaced += piecePlaced;
+            currentPiece.PiecePlacedEvent += onPiecePlaced;
+            currentPiece.PieceHeldEvent += onPieceHeld;
         }
 
         protected override void LoadComplete()
         {
             nextPiecesSideBar.LoadNextPiecesSideBar();
-            setNewPiece();
+            setNewPiece(bagGenerator.GetNextPieceType());
             updateNextPiecesSideBar();
             base.LoadComplete();
         }
@@ -87,7 +97,7 @@ namespace Tetriosu.Game.Gameplay.Playfield
             base.Update();
         }
 
-        #region Keybinding events
+        #region keybinding events
 
         public bool OnPressed(KeyBindingPressEvent<FullPieceActions> e)
         {
@@ -124,11 +134,15 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     break;
 
                 case FullPieceActions.RotateCounterClockwise:
-                    currentPiece.HandleRotateCcwKeypress();
+                    currentPiece.HandleRotateCcwKeyPress();
                     break;
 
                 case FullPieceActions.FlipPiece:
-                    currentPiece.HandleFlipPieceKeypress();
+                    currentPiece.HandleFlipPieceKeyPress();
+                    break;
+
+                case FullPieceActions.HoldPiece:
+                    currentPiece.HandleHoldPieceKeyPress();
                     break;
 
                 default:
@@ -169,6 +183,10 @@ namespace Tetriosu.Game.Gameplay.Playfield
                     currentPiece.HandleFlipPieceKeyRelease();
                     break;
 
+                case FullPieceActions.HoldPiece:
+                    currentPiece.HandleHoldPieceKeyRelease();
+                    break;
+
                 default:
                     break;
             }
@@ -176,20 +194,40 @@ namespace Tetriosu.Game.Gameplay.Playfield
 
         #endregion
 
-        private void piecePlaced(object? sender, List<BlockPiece> p)
+        private void onPiecePlaced(object? sender, List<BlockPiece> p)
         {
-            RemoveBlockPiece(p);
+            RemoveBlockPieces(p);
 
-            setNewPiece();
+            setNewPiece(bagGenerator.GetNextPieceType());
             updateNextPiecesSideBar();
+        }
+
+        private void onPieceHeld(object? sender, List<BlockPiece> p)
+        {
+            string trash = currentPiece.PieceType;
+            RemoveBlockPieces(p);
+
+            if (currentPiece.HeldPieceType != "")
+            {
+                setNewPiece(currentPiece.HeldPieceType);
+                currentPiece.HeldPieceType = trash;
+            }
+            else
+            {
+                setNewPiece(bagGenerator.GetNextPieceType());
+                updateNextPiecesSideBar();
+                currentPiece.HeldPieceType = trash;
+            }
+
+            heldPieceSideBar.UpdateShownPiece(currentPiece.HeldPieceType);
         }
 
         public void AddBlockPiece(BlockPiece blockPiece) => playfieldBlockContainer.Add(blockPiece);
 
-        public void RemoveBlockPiece(List<BlockPiece> blockPiece) => playfieldBlockContainer.RemoveRange(blockPiece, true);
+        public void RemoveBlockPieces(List<BlockPiece> blockPiece) => playfieldBlockContainer.RemoveRange(blockPiece, true);
 
-        private void setNewPiece() => currentPiece.SetPiece(bagGenerator.GetNextPieceType(), this);
+        private void setNewPiece(string pieceType) => currentPiece.SetPiece(pieceType, this);
 
-        private void updateNextPiecesSideBar() => nextPiecesSideBar.UpdateNextPiecesSideBar();
+        private void updateNextPiecesSideBar() => nextPiecesSideBar.UpdateShownPieces();
     }
 }
